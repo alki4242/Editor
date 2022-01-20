@@ -190,7 +190,7 @@ public class text_editor {
                 label.setText("Dosya kaydediliyor");
                 JFileChooser filechooser = new JFileChooser("f:");
                 filechooser.setAcceptAllFileFilterUsed(false);
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari", "edf"));
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", "edf"));
                 int temp = filechooser.showSaveDialog(null);
                 label.setText("");
                 if (temp == JFileChooser.APPROVE_OPTION) {
@@ -218,7 +218,7 @@ public class text_editor {
             public void actionPerformed(ActionEvent e) {
                 label.setText("Dosya Aciliyor");
                 JFileChooser filechooser = new JFileChooser("f:");
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari", "edf"));
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", "edf"));
                 int temp = filechooser.showOpenDialog(null);
                 label.setText("");
                 if (temp == JFileChooser.APPROVE_OPTION) {
@@ -265,7 +265,7 @@ public class text_editor {
                     JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadigi icin farkli kaydediliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.setAcceptAllFileFilterUsed(false);
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari", ".edf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", ".edf"));
                     int temp = filechooser.showSaveDialog(null);
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
