@@ -5,8 +5,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.UndoManager;
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,8 +17,9 @@ import javax.swing.*;
 import java.awt.GraphicsEnvironment;
 
 public class text_editor {
-    String surum = "V1.0.31";
+    String surum = "V1.0.42";
     String acilandosya = "s";
+    Boolean kayitli = true;
     private JFrame frmTextEditor;
 
     public text_editor() {
@@ -44,6 +44,16 @@ public class text_editor {
         JMenuBar menuBar = new JMenuBar();
         textRegion.setTabSize(3);
         JLabel label = new JLabel();
+        textRegion.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String kelimeler = textRegion.getText();
+                String kelimeayri[] = kelimeler.split("\\s");
+                int karakterler = kelimeler.length();
+                label.setText("Karakter Sayisi: " + karakterler + " Kelime Sayisi: " + kelimeayri.length);
+                kayitli = false;
+            }
+        });
         frmTextEditor.setJMenuBar(menuBar);
         String text = textRegion.getText();
         UndoManager undo = new UndoManager();
@@ -151,12 +161,21 @@ public class text_editor {
 
             }
         });
+        JMenuItem metinyazi = new JMenuItem("Metin Rengi");
+        metinyazi.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JColorChooser renk = new JColorChooser();
+                Color c = JColorChooser.showDialog(renk, "Renk Menusu", Color.black);
+                textRegion.setForeground(c);
+            }
+        });
+        mnbicim.add(metinyazi);
         JMenuItem renksecarkaplan = new JMenuItem("Arkaplan rengi");
         mnbicim.add(renksecarkaplan);
         renksecarkaplan.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JColorChooser renk = new JColorChooser();
-                Color c = JColorChooser.showDialog(renk, "Renk Menusu", Color.black);
+                Color c = JColorChooser.showDialog(renk, "Renk Menusu", Color.white);
                 textRegion.setBackground(c);
             }
         });
@@ -171,9 +190,21 @@ public class text_editor {
         JMenuItem mntmNew = new JMenuItem("Yeni Dosya");
         mntmNew.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                textRegion.setText("");
-                acilandosya = "s";
-                label.setText("Yeni Dosya acildi");
+                if (kayitli) {
+                    textRegion.setText("");
+                    acilandosya = "s";
+                    label.setText("Yeni Dosya acildi");
+                } else {
+                    int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
+                            "Dikkat! Dosyayi kaydetmeden yeni dosya aciyorsun emin misin?", "Uyari!",
+                            JOptionPane.YES_NO_OPTION);
+                    if (uyari == JOptionPane.YES_OPTION) {
+                        textRegion.setText("");
+                        acilandosya = "s";
+                        label.setText("Yeni Dosya acildi");
+                    }
+                }
+
             }
         });
         mnFile.add(mntmNew);
@@ -203,6 +234,7 @@ public class text_editor {
                         bufferwr.close();
                         label.setText("Dosya kaydedildi");
                         frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                        kayitli = true;
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                         label.setText("Dosya kaydedilemedi");
@@ -216,32 +248,64 @@ public class text_editor {
         JMenuItem mntmOpen = new JMenuItem("Ac");
         mntmOpen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                label.setText("Dosya Aciliyor");
-                JFileChooser filechooser = new JFileChooser("f:");
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", "edf"));
-                int temp = filechooser.showOpenDialog(null);
-                label.setText("");
-                if (temp == JFileChooser.APPROVE_OPTION) {
-                    File file = new File(filechooser.getSelectedFile().getAbsolutePath());
-                    try {
-                        String str = "", str1 = "";
-                        FileReader fileread = new FileReader(file);
-                        BufferedReader bufferrd = new BufferedReader(fileread);
-                        str1 = bufferrd.readLine();
-                        while ((str = bufferrd.readLine()) != null) {
-                            str1 = str1 + "\n" + str;
+                if (kayitli) {
+                    label.setText("Dosya Aciliyor");
+                    JFileChooser filechooser = new JFileChooser("f:");
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", "edf"));
+                    int temp = filechooser.showOpenDialog(null);
+                    label.setText("");
+                    if (temp == JFileChooser.APPROVE_OPTION) {
+                        File file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                        try {
+                            String str = "", str1 = "";
+                            FileReader fileread = new FileReader(file);
+                            BufferedReader bufferrd = new BufferedReader(fileread);
+                            str1 = bufferrd.readLine();
+                            while ((str = bufferrd.readLine()) != null) {
+                                str1 = str1 + "\n" + str;
+                            }
+                            textRegion.setText(str1);
+                            acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                            label.setText("Dosya Acildi");
+                            frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                            label.setText("Dosya Acilamadı");
                         }
-                        textRegion.setText(str1);
-                        acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                        label.setText("Dosya Acildi");
-                        frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                        label.setText("Dosya Acilamadı");
+                    }
+                } else {
+                    int onay = JOptionPane.showConfirmDialog(frmTextEditor,
+                            "Dikkat! Mevcut dosyayi kaydetmeden baska bir dosya aciyorsun emin misin?", "Uyari!",
+                            JOptionPane.YES_NO_OPTION);
+                    if (onay == JOptionPane.YES_OPTION) {
+                        label.setText("Dosya Aciliyor");
+                        JFileChooser filechooser = new JFileChooser("f:");
+                        filechooser
+                                .addChoosableFileFilter(new FileNameExtensionFilter("Editor Dosyalari (.edf)", "edf"));
+                        int temp = filechooser.showOpenDialog(null);
+                        label.setText("");
+                        if (temp == JFileChooser.APPROVE_OPTION) {
+                            File file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                            try {
+                                String str = "", str1 = "";
+                                FileReader fileread = new FileReader(file);
+                                BufferedReader bufferrd = new BufferedReader(fileread);
+                                str1 = bufferrd.readLine();
+                                while ((str = bufferrd.readLine()) != null) {
+                                    str1 = str1 + "\n" + str;
+                                }
+                                textRegion.setText(str1);
+                                acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                                label.setText("Dosya Acildi");
+                                frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                                label.setText("Dosya Acilamadı");
+                            }
+                        }
                     }
                 }
             }
-
         });
         mnFile.add(mntmOpen);
         JMenuItem mntmSavef = new JMenuItem("Kaydet");
@@ -257,6 +321,7 @@ public class text_editor {
                         bufferwr.flush();
                         bufferwr.close();
                         label.setText("Dosya Kaydedildi");
+                        kayitli = true;
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                     }
@@ -278,6 +343,7 @@ public class text_editor {
                             bufferwr.flush();
                             bufferwr.close();
                             label.setText("Dosya kaydedildi");
+                            kayitli = true;
                             frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
@@ -292,7 +358,16 @@ public class text_editor {
         JMenuItem mntmExit = new JMenuItem("Cikis");
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frmTextEditor.dispatchEvent(new WindowEvent(frmTextEditor, WindowEvent.WINDOW_CLOSING));
+                if (kayitli) {
+                    frmTextEditor.dispatchEvent(new WindowEvent(frmTextEditor, WindowEvent.WINDOW_CLOSING));
+                } else {
+                    int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
+                            "Dikkat! Dosyayi kaydetmeden cikiyorsun emin misin?", "Uyari!", JOptionPane.YES_NO_OPTION);
+                    if (uyari == JOptionPane.YES_OPTION) {
+                        frmTextEditor.dispatchEvent(new WindowEvent(frmTextEditor, WindowEvent.WINDOW_CLOSING));
+                    }
+                }
+
             }
         });
         mnFile.add(mntmExit);
