@@ -17,7 +17,7 @@ import javax.swing.*;
 import java.awt.GraphicsEnvironment;
 
 public class text_editor {
-    String surum = "V1.0.42";
+    String surum = "V1.0.53";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -37,7 +37,7 @@ public class text_editor {
         frmTextEditor.setTitle("Editor " + surum);
         frmTextEditor.setSize(500, 550);
         frmTextEditor.setBounds(100, 200, 550, 630);
-        frmTextEditor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frmTextEditor.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frmTextEditor.getContentPane().setLayout(new BorderLayout(0, 0));
         JTextArea textRegion = new JTextArea();
         frmTextEditor.getContentPane().add(textRegion, BorderLayout.CENTER);
@@ -194,6 +194,7 @@ public class text_editor {
                     textRegion.setText("");
                     acilandosya = "s";
                     label.setText("Yeni Dosya acildi");
+                    kayitli = true;
                 } else {
                     int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
                             "Dikkat! Dosyayi kaydetmeden yeni dosya aciyorsun emin misin?", "Uyari!",
@@ -227,6 +228,7 @@ public class text_editor {
                 if (temp == JFileChooser.APPROVE_OPTION) {
                     File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                     try {
+                        acilandosya = filechooser.getSelectedFile().getAbsolutePath();
                         FileWriter filewriter = new FileWriter(file, false);
                         BufferedWriter bufferwr = new BufferedWriter(filewriter);
                         bufferwr.write(textRegion.getText());
@@ -270,7 +272,7 @@ public class text_editor {
                             frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                            label.setText("Dosya Acilamadı");
+                            label.setText("Dosya Acilamadi");
                         }
                     }
                 } else {
@@ -298,9 +300,10 @@ public class text_editor {
                                 acilandosya = file.getAbsoluteFile().getAbsolutePath();
                                 label.setText("Dosya Acildi");
                                 frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                                kayitli = true;
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                                label.setText("Dosya Acilamadı");
+                                label.setText("Dosya Acilamadi");
                             }
                         }
                     }
@@ -314,16 +317,20 @@ public class text_editor {
             public void actionPerformed(ActionEvent e) {
                 File file = new File(acilandosya);
                 if (acilandosya != "s") {
-                    try {
-                        FileWriter filewriter = new FileWriter(file);
-                        BufferedWriter bufferwr = new BufferedWriter(filewriter);
-                        bufferwr.write(textRegion.getText());
-                        bufferwr.flush();
-                        bufferwr.close();
-                        label.setText("Dosya Kaydedildi");
-                        kayitli = true;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                    if (file.exists()) {
+                        try {
+                            FileWriter filewriter = new FileWriter(file);
+                            BufferedWriter bufferwr = new BufferedWriter(filewriter);
+                            bufferwr.write(textRegion.getText());
+                            bufferwr.flush();
+                            bufferwr.close();
+                            label.setText("Dosya Kaydedildi");
+                            kayitli = true;
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadi lutfen farkli kaydediniz");
                     }
                 } else {
                     label.setText("Dosya kaydediliyor");
@@ -337,14 +344,14 @@ public class text_editor {
                         acilandosya = filechooser.getSelectedFile().getAbsolutePath();
                         File files = new File(filechooser.getSelectedFile().getAbsolutePath());
                         try {
-                            FileWriter filewriter = new FileWriter(file, false);
+                            FileWriter filewriter = new FileWriter(files, false);
                             BufferedWriter bufferwr = new BufferedWriter(filewriter);
                             bufferwr.write(textRegion.getText());
                             bufferwr.flush();
                             bufferwr.close();
                             label.setText("Dosya kaydedildi");
                             kayitli = true;
-                            frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                            frmTextEditor.setTitle("Editor " + surum + " - " + files.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya kaydedilemedi");
@@ -359,15 +366,32 @@ public class text_editor {
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (kayitli) {
-                    frmTextEditor.dispatchEvent(new WindowEvent(frmTextEditor, WindowEvent.WINDOW_CLOSING));
+                    System.exit(0);
                 } else {
                     int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
                             "Dikkat! Dosyayi kaydetmeden cikiyorsun emin misin?", "Uyari!", JOptionPane.YES_NO_OPTION);
                     if (uyari == JOptionPane.YES_OPTION) {
-                        frmTextEditor.dispatchEvent(new WindowEvent(frmTextEditor, WindowEvent.WINDOW_CLOSING));
+                        System.exit(0);
                     }
                 }
 
+            }
+        });
+        frmTextEditor.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (kayitli) {
+                    System.exit(0);
+                } else {
+                    int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
+                            "Dikkat! Dosyayi kaydetmeden cikiyorsun emin misin?", "Uyari!", JOptionPane.YES_NO_OPTION);
+                    if (uyari == JOptionPane.YES_OPTION) {
+                        System.exit(0);
+                    }
+                    if (uyari == JOptionPane.NO_OPTION) {
+
+                    }
+                }
             }
         });
         mnFile.add(mntmExit);
