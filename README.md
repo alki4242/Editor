@@ -15,3 +15,5 @@ Programda Kayıt etme, geri alma, ileri alma gibi işlevlerin kısa yolları şu
 Program yalnız Editor Dosyaları(.edf) formatında kaydedip, bir çok formatta ki dosyayı açabilmektedir
 
 Biçim menüsünde ki seçilebilir fontlar, cihazınızda bulunan fontlardır
+
+Ayarlar.ead'da bulunan değerleri değiştirirken dikkatli olunuz fazla veya eksik girilebilecek değerler dosyayı bozabilir
