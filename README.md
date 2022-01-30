@@ -11,3 +11,5 @@ Program java kurulu olmadan çalışmaz en az java11 kurulu olması gerek
 Dosya menüsünden dosya işlemlerini gerçekleştirebilir, Düzen menüsünden geri alma vb. işlemleri yapabilir,Biçim menüsünden programın metin ayarlarını değiştirebilirsiniz
 
 Programda Kayıt etme, geri alma, ileri alma gibi işlevlerin kısa yolları şuanlık yok (metin ile alakalı kopyalama, yapıştırma, kesme vb. şeyler çalışmaktadır)
+
+Program yalnız Editor Dosyaları(.edf) formatında kaydedip, bir çok formatta ki dosyayı açabilmektedir
