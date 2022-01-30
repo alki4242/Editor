@@ -13,3 +13,5 @@ Dosya menüsünden dosya işlemlerini gerçekleştirebilir, Düzen menüsünden 
 Programda Kayıt etme, geri alma, ileri alma gibi işlevlerin kısa yolları şuanlık yok (metin ile alakalı kopyalama, yapıştırma, kesme vb. şeyler çalışmaktadır)
 
 Program yalnız Editor Dosyaları(.edf) formatında kaydedip, bir çok formatta ki dosyayı açabilmektedir
+
+Biçim menüsünde ki seçilebilir fontlar, cihazınızda bulunan fontlardır
