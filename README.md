@@ -4,15 +4,11 @@ Bu Program bir çok yazıyı açmanıza yardımcı olur biçim menüsünden yapa
 
 Kaydettiğiniz biçim ayarlar.ead dosyasına kaydedilmektedir. başkalarının kullandığı biçim dosyalarını kullanmak isterseniz bu dosya ile değiştirmeniz yeterli olucaktır
 
-Eğer program başlamazsa ayarlar dosyasında terslik olabilir. tersliği bulamazsanız onu silerek tekrardan oluşturta bilirsiniz
+Eğer program başlamazsa ayarlar dosyasında terslik olabilir. tersliği bulamazsanız onu silerek tekrardan oluştura bilirsiniz
 
 Program java kurulu olmadan çalışmaz en az java11 kurulu olması gerek
 
 Dosya menüsünden dosya işlemlerini gerçekleştirebilir, Düzen menüsünden geri alma vb. işlemleri yapabilir,Biçim menüsünden programın metin ayarlarını değiştirebilirsiniz
-
-Programda Kayıt etme, geri alma, ileri alma gibi işlevlerin kısa yolları şuanlık yok (metin ile alakalı kopyalama, yapıştırma, kesme vb. şeyler çalışmaktadır)
-
-Program yalnız Editor Dosyaları(.edf) formatında kaydedip, bir çok formatta ki dosyayı açabilmektedir
 
 Biçim menüsünde ki seçilebilir fontlar, cihazınızda bulunan fontlardır
 
