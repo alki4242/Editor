@@ -1,4 +1,4 @@
-package alki4242;
+﻿package alki4242;
 
 import java.lang.Integer;
 import java.lang.String;
@@ -28,12 +28,13 @@ import java.util.concurrent.TimeUnit;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.0.86";
+    String surum = "V1.0.97";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
     public text_editor() {
         initalize();
+      
         
     }
     public static void main(String[] args) {
@@ -72,7 +73,6 @@ public class text_editor {
                     UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
         }
-
         String bfont = props.getProperty("Font");
         String bbmr = props.getProperty("metinr");
         Scanner bbmrs = new Scanner(bbmr);
@@ -94,7 +94,7 @@ public class text_editor {
         int tabb = Integer.decode(btabb).intValue();
         frmTextEditor = new JFrame();
         frmTextEditor.setIconImage(null);
-        frmTextEditor.setTitle("Editor " + surum);
+        frmTextEditor.setTitle("Editör " + surum + " - Başlıksız");
         frmTextEditor.setSize(500, 550);
         frmTextEditor.setBounds(100, 200, 550, 630);
         frmTextEditor.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -108,10 +108,11 @@ public class text_editor {
         textRegion.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
+            	
                 String kelimeler = textRegion.getText();
                 String kelimeayri[] = kelimeler.split("\\s");
                 int karakterler = kelimeler.length();
-                label.setText("Karakter Sayýsý: " + karakterler + " Kelime Sayýsý: " + kelimeayri.length);
+                label.setText("Karakter Sayısı: " + karakterler + " Kelime Sayısı: " + kelimeayri.length);
                 kayitli = false;
 
             }
@@ -132,7 +133,7 @@ public class text_editor {
         menuBar.add(mnEdit);
         JMenu mnbicim = new JMenu("Biçim");
         menuBar.add(mnbicim);
-        JMenu mninfo = new JMenu("Hakkýnda");
+        JMenu mninfo = new JMenu("Hakkında");
         menuBar.add(mninfo);
         JLabel boyuty = new JLabel();
         boyuty.setText("Metin Boyutu");
@@ -181,6 +182,7 @@ public class text_editor {
                 props.setProperty("tabsize", ks);
             }
         });
+        
         JLabel fontbilgi = new JLabel();
         fontbilgi.setText("Fontlar");
         mnbicim.add(fontbilgi);
@@ -197,7 +199,7 @@ public class text_editor {
             }
         });
         JButton kalin = new JButton();
-        kalin.setText("Kalýn");
+        kalin.setText("Kalın");
         JMenuItem selecall = new JMenuItem("Hepsini Seç");
         selecall.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));        
         selecall.addActionListener(new ActionListener() {
@@ -216,7 +218,7 @@ public class text_editor {
             }
         });
         JButton cizili = new JButton();
-        cizili.setText("Sýfýrla");
+        cizili.setText("Sıfırla");
         cizili.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String selectedFamilyName = fontlar.getSelectedItem().toString();
@@ -227,11 +229,13 @@ public class text_editor {
             }
         });
         JLabel duzey = new JLabel();
-        duzey.setText("Yazý Türü");
+        duzey.setText("Yazı Türü");
         mnbicim.add(duzey);
         mnbicim.add(ince);
         mnbicim.add(kalin);
         mnbicim.add(cizili);
+        JSeparator mrenkcizgi = new JSeparator();
+        mnbicim.add(mrenkcizgi);
         JMenuItem renksec = new JMenuItem("Seçili metin rengi");
         mnbicim.add(renksec);
         renksec.addActionListener(new ActionListener() {
@@ -264,7 +268,7 @@ public class text_editor {
             }
         });
         JLabel bulbilgi = new JLabel();
-        bulbilgi.setText("Bul |\n Aranacak metini yazýn");
+        bulbilgi.setText("Bul |\n Aranacak metini yazın");
         mnbul.add(bulbilgi);
         JTextField bulyazi = new JTextField();
         mnbul.add(bulyazi);
@@ -275,19 +279,19 @@ public class text_editor {
                     int n = textRegion.getText().indexOf(ara);
                     if (n != -1) {
                         textRegion.select(n, n + ara.length());
-                        label.setText("Aratýldý");
+                        label.setText("Aratıldı");
                     } else {
-                        JOptionPane.showMessageDialog(frmTextEditor, "Aratýlan deðer bulunamadý");
+                        JOptionPane.showMessageDialog(frmTextEditor, "Aratılan değer bulunamadı");
                     }
                 } else {
-                    JOptionPane.showMessageDialog(frmTextEditor, "Lütfen deðer giriniz!");
+                    JOptionPane.showMessageDialog(frmTextEditor, "Lütfen değer giriniz!");
                 }
             }
         });
         JLabel ayirbulrep = new JLabel();
         mnbul.add(ayirbulrep);
         JLabel repbilgi = new JLabel();
-        repbilgi.setText("Bul ve Deðiþtir|\n Yeni metini yazýn");
+        repbilgi.setText("Bul ve Değiştir|\n Yeni metini yazın");
         mnbul.add(repbilgi);
         JTextField repyazi = new JTextField();
         mnbul.add(repyazi);
@@ -299,12 +303,12 @@ public class text_editor {
                     if (n != -1) {
                         String reple = repyazi.getText();
                         textRegion.replaceRange(reple, n, n + ara.length());
-                        label.setText("Deðiþtirildi");
+                        label.setText("Değiştirildi");
                     } else {
-                        JOptionPane.showMessageDialog(frmTextEditor, "Aratýlan deðer bulunamadý");
+                        JOptionPane.showMessageDialog(frmTextEditor, "Aratılan değer bulunamadı");
                     }
                 } else {
-                    JOptionPane.showMessageDialog(frmTextEditor, "Lütfen deðiþtirilecek deðeri giriniz!");
+                    JOptionPane.showMessageDialog(frmTextEditor, "Lütfen değiştirilecek değeri giriniz!");
                 }
 
             }
@@ -317,6 +321,8 @@ public class text_editor {
             }
         });
         mnEdit.add(mnclearall);
+        JSeparator hepcizgi = new JSeparator();
+        mnEdit.add(hepcizgi);
         JMenuItem mntmNew = new JMenuItem("Yeni Dosya");
         mntmNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmNew.addActionListener(new ActionListener() {
@@ -324,40 +330,51 @@ public class text_editor {
                 if (kayitli) {
                     textRegion.setText("");
                     acilandosya = "s";
-                    label.setText("Yeni Dosya açýldý");
+                    label.setText("Yeni Dosya açıldı");
                     kayitli = true;
+                    frmTextEditor.setTitle("Editör " + surum + " - Yeni Dosya");
                 } else {
                     int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
-                            "Dikkat! Dosyayý kaydetmeden yeni dosya oluþturuyorsun emin misin?", "Uyarý!",
+                            "Dikkat! Dosyayı kaydetmeden yeni dosya oluşturuyorsun emin misin?", "Uyarı!",
                             JOptionPane.YES_NO_OPTION);
                     if (uyari == JOptionPane.YES_OPTION) {
                         textRegion.setText("");
                         acilandosya = "s";
-                        label.setText("Yeni Dosya açýldý");
+                        label.setText("Yeni Dosya açıldı");
+                        frmTextEditor.setTitle("Editör " + surum + " - Yeni Dosya");
+
                     }
                 }
 
             }
         });
         mnFile.add(mntmNew);
-        JMenuItem mninfoin = new JMenuItem("Hakkýnda");
+        JMenuItem mninfoin = new JMenuItem("Hakkında");
         mninfoin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frmTextEditor, "Yapýmcý: alki4242 \n Sürüm: " + surum);
+                JOptionPane.showMessageDialog(frmTextEditor, "Yapımcı: alki4242 \n Sürüm: " + surum);
             }
         });
         mninfo.add(mninfoin);
-        JMenuItem mntmSave = new JMenuItem("Farklý Kaydet");
+        JMenuItem mntmSave = new JMenuItem("Farklı Kaydet");
+        mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F , Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 label.setText("Dosya kaydediliyor");
                 JFileChooser filechooser = new JFileChooser("f:");
                 filechooser.setAcceptAllFileFilterUsed(false);
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyalarý (.edf)", "edf"));
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                 int temp = filechooser.showSaveDialog(null);
                 label.setText("");
                 if (temp == JFileChooser.APPROVE_OPTION) {
-                    File file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                	File file;
+                    acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                    
+                    if (!acilandosya.endsWith(".edf") && filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                    	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
+                    } else {
+                    	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                    }
                     try {
                         acilandosya = filechooser.getSelectedFile().getAbsolutePath();
                         FileWriter filewriter = new FileWriter(file, false);
@@ -366,7 +383,7 @@ public class text_editor {
                         bufferwr.flush();
                         bufferwr.close();
                         label.setText("Dosya kaydedildi " + file.getAbsolutePath());
-                        frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                        frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                         kayitli = true;
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
@@ -386,7 +403,7 @@ public class text_editor {
                 if (kayitli) {
                     label.setText("Dosya Aciliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyalarý (.edf)", "edf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                     int temp = filechooser.showOpenDialog(null);
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
@@ -401,22 +418,22 @@ public class text_editor {
                             }
                             textRegion.setText(str1);
                             acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                            label.setText("Dosya Açýldý " + acilandosya);
-                            frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                            label.setText("Dosya Açıldı " + acilandosya);
+                            frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                            label.setText("Dosya Açýlamadý");
+                            label.setText("Dosya Açılamadı");
                         }
                     }
                 } else {
                     int onay = JOptionPane.showConfirmDialog(frmTextEditor,
-                            "Dikkat! Mevcut dosyayý kaydetmeden baþka bir dosya açýyorsun emin misin?", "Uyari!",
+                            "Dikkat! Mevcut dosyayı kaydetmeden başka bir dosya açıyorsun emin misin?", "Uyari!",
                             JOptionPane.YES_NO_OPTION);
                     if (onay == JOptionPane.YES_OPTION) {
                         label.setText("Dosya Aciliyor");
                         JFileChooser filechooser = new JFileChooser("f:");
                         filechooser
-                                .addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyalarý (.edf)", "edf"));
+                                .addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                         int temp = filechooser.showOpenDialog(null);
                         label.setText("");
                         if (temp == JFileChooser.APPROVE_OPTION) {
@@ -431,12 +448,12 @@ public class text_editor {
                                 }
                                 textRegion.setText(str1);
                                 acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                                label.setText("Dosya Açýldý");
-                                frmTextEditor.setTitle("Editor " + surum + " - " + file.getName());
+                                label.setText("Dosya Açıldı");
+                                frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                                 kayitli = true;
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                                label.setText("Dosya Açýlamadý");
+                                label.setText("Dosya Açılamadı");
                             }
                         }
                     }
@@ -444,6 +461,8 @@ public class text_editor {
             }
         });
         mnFile.add(mntmOpen);
+        JSeparator bcizgi = new JSeparator();
+        mnbicim.add(bcizgi);
         JMenuItem bicimkaydet = new JMenuItem("Biçimi Kaydet");
         bicimkaydet.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -453,11 +472,11 @@ public class text_editor {
 
                 }
 
-                JOptionPane.showMessageDialog(frmTextEditor, "Biçim ayarlarýnýz baþarýyla kaydedildi");
+                JOptionPane.showMessageDialog(frmTextEditor, "Biçim ayarlarınız başarıyla kaydedildi");
             }
         });
         mnbicim.add(bicimkaydet);
-        JMenuItem bicimsifir = new JMenuItem("Varsayýlan biçim");
+        JMenuItem bicimsifir = new JMenuItem("Varsayılan biçim");
         bicimsifir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -474,7 +493,7 @@ public class text_editor {
                 }
 
                 JOptionPane.showMessageDialog(frmTextEditor,
-                        "Biçim ayarlarýnýz baþarýyla varsayýlana çevirildi uygulamayý yeniden baþlatarak aktif edebilirsiniz");
+                        "Biçim ayarlarınız başarıyla varsayılana çevirildi uygulamayı yeniden başlatarak aktif edebilirsiniz");
             }
         });
         mnbicim.add(bicimsifir);
@@ -492,24 +511,29 @@ public class text_editor {
                             bufferwr.flush();
                             bufferwr.close();
                             label.setText("Dosya Kaydedildi " + file.getAbsolutePath());
-                            kayitli = true;
+                             kayitli = true;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                         }
                     } else {
-                        JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadý lütfen farklý kaydediniz");
+                        JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadı lütfen farklı kaydediniz");
                     }
                 } else {
                     label.setText("Dosya kaydediliyor");
-                    JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadýðý için farklý kaydediliyor");
+                    JOptionPane.showMessageDialog(frmTextEditor, "Dosya Bulunamadığı için farklı kaydediliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.setAcceptAllFileFilterUsed(false);
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyalarý (.edf)", ".edf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                     int temp = filechooser.showSaveDialog(null);
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
+                    	File files;
                         acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                        File files = new File(filechooser.getSelectedFile().getAbsolutePath());
+                        if (!acilandosya.endsWith(".edf") && filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                        	 files = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
+                        } else {
+                        	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
+                        }
                         try {
                             FileWriter filewriter = new FileWriter(files, false);
                             BufferedWriter bufferwr = new BufferedWriter(filewriter);
@@ -518,7 +542,7 @@ public class text_editor {
                             bufferwr.close();
                             label.setText("Dosya kaydedildi");
                             kayitli = true;
-                            frmTextEditor.setTitle("Editor " + surum + " - " + files.getName());
+                            frmTextEditor.setTitle("Editör " + surum + " - " + files.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya kaydedilemedi");
@@ -529,7 +553,9 @@ public class text_editor {
             }
         });
         mnFile.add(mntmSavef);
-        JMenuItem mntmExit = new JMenuItem("Çýkýþ");
+        JSeparator ccizgi = new JSeparator();
+        mnFile.add(ccizgi);
+        JMenuItem mntmExit = new JMenuItem("Çıkış");
         mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -537,7 +563,7 @@ public class text_editor {
                     System.exit(0);
                 } else {
                     int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
-                            "Dikkat! Dosyayý kaydetmeden çýkýyorsun emin misin?", "Uyarý!", JOptionPane.YES_NO_OPTION);
+                            "Dikkat! Dosyayı kaydetmeden çıkıyorsun emin misin?", "Uyarı!", JOptionPane.YES_NO_OPTION);
                     if (uyari == JOptionPane.YES_OPTION) {
                         System.exit(0);
                     }
@@ -552,7 +578,7 @@ public class text_editor {
                     System.exit(0);
                 } else {
                     int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
-                            "Dikkat! Dosyayý kaydetmeden çýkýyorsun emin misin?", "Uyarý!", JOptionPane.YES_NO_OPTION);
+                            "Dikkat! Dosyayı kaydetmeden çıkıyorsun emin misin?", "Uyarı!", JOptionPane.YES_NO_OPTION);
                     if (uyari == JOptionPane.YES_OPTION) {
                         System.exit(0);
                     }
@@ -579,37 +605,38 @@ public class text_editor {
         mntmCopy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 textRegion.copy();
-                label.setText("Seçili Metin Kopyalandi");
+                label.setText("Seçili Metin Kopyalandı");
 
             }
         });
         mnEdit.add(mntmCopy);
 
-        JMenuItem mntmExi = new JMenuItem("Yapýþtýr");
+        JMenuItem mntmExi = new JMenuItem("Yapıştır");
         mntmExi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmExi.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 textRegion.paste();
-                label.setText("Seçili Metin Yapistirildi");
+                label.setText("Seçili Metin Yapıştırıldı");
             }
         });
         mnEdit.add(mntmExi);
-
+        JSeparator yapistircizgi = new JSeparator();
+        mnEdit.add(yapistircizgi);
         JMenuItem mntmUndo = new JMenuItem("Geri al");
         mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmUndo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (undo.canUndo()) {
                     undo.undo();
-                    label.setText("Geri Alýndý");
+                    label.setText("Geri Alındı");
                 } else {
-                    label.setText("Geri Alýnamadý");
+                    label.setText("Geri Alınamadı");
                 }
 
             }
         });
         mnEdit.add(mntmUndo);
-
+        
         JMenuItem mntmRedo = new JMenuItem("Yinele");
       mntmRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
 
