@@ -2,6 +2,8 @@
 
 import java.lang.Integer;
 import java.lang.String;
+import java.nio.charset.StandardCharsets;
+
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.UndoManager;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.0.97";
+    String surum = "V1.1.0";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -47,7 +49,7 @@ public class text_editor {
         Properties props = new Properties();
         if (f.exists()) {
             try {
-                FileReader reader = new FileReader(f);
+                FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
             } catch (Exception e) {
 
@@ -62,7 +64,7 @@ public class text_editor {
                 props.setProperty("arkaplan", "java.awt.Color[r=255,g=255,b=255]");
                 props.setProperty("tabsize", "2");
                 props.store(new FileOutputStream("./ayarlar.ead"), null);
-                FileReader reader = new FileReader(f);
+                FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
             } catch (IOException g) {
 
@@ -138,6 +140,7 @@ public class text_editor {
         JLabel boyuty = new JLabel();
         boyuty.setText("Metin Boyutu");
         mnbicim.add(boyuty);
+        boyuty.setToolTipText("Karakterlerin Büyüklüğünü Seçin");
         JSlider boyut = new JSlider(JSlider.HORIZONTAL,
                 20, 50, bmb);
         boyut.setName("Metin Boyutu");
@@ -167,8 +170,9 @@ public class text_editor {
         });
         mnbicim.add(boyut);
         JLabel taby = new JLabel();
-        taby.setText("Tab Boyutu");
+        taby.setText("Tab(Sekme) Boyutu");
         mnbicim.add(taby);
+        taby.setToolTipText("Bir TAB(Sekme) Tuşu Basıldığı Zaman Atlanıcak Boşluk Sayısını Seçin");
         JSlider tab = new JSlider(JSlider.HORIZONTAL, 2, 8, 2);
         tab.setPaintTicks(true);
         tab.setPaintLabels(true);
@@ -237,6 +241,7 @@ public class text_editor {
         JSeparator mrenkcizgi = new JSeparator();
         mnbicim.add(mrenkcizgi);
         JMenuItem renksec = new JMenuItem("Seçili metin rengi");
+        renksec.setToolTipText("İmleç İle Seçilen Metinlerin \n Görüntülenme Rengini Seçin");
         mnbicim.add(renksec);
         renksec.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -248,6 +253,7 @@ public class text_editor {
             }
         });
         JMenuItem metinyazi = new JMenuItem("Metin Rengi");
+        metinyazi.setToolTipText("Yazılı Karakterlerin Rengini Seçin");
         metinyazi.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JColorChooser renk = new JColorChooser();
@@ -258,6 +264,7 @@ public class text_editor {
         });
         mnbicim.add(metinyazi);
         JMenuItem renksecarkaplan = new JMenuItem("Arkaplan rengi");
+        renksecarkaplan.setToolTipText("Yazı Alanının Rengini Seçin");
         mnbicim.add(renksecarkaplan);
         renksecarkaplan.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -324,6 +331,7 @@ public class text_editor {
         JSeparator hepcizgi = new JSeparator();
         mnEdit.add(hepcizgi);
         JMenuItem mntmNew = new JMenuItem("Yeni Dosya");
+        mntmNew.setToolTipText("Yeni Bir Dosya Oluşturun");
         mntmNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmNew.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
@@ -357,6 +365,7 @@ public class text_editor {
         });
         mninfo.add(mninfoin);
         JMenuItem mntmSave = new JMenuItem("Farklı Kaydet");
+        mntmSave.setToolTipText("Düzenlenen Dosyayı Farklı Şekilde Kaydedin");
         mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F , Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -377,7 +386,7 @@ public class text_editor {
                     }
                     try {
                         acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                        FileWriter filewriter = new FileWriter(file, false);
+                        FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
                         BufferedWriter bufferwr = new BufferedWriter(filewriter);
                         bufferwr.write(textRegion.getText());
                         bufferwr.flush();
@@ -397,10 +406,10 @@ public class text_editor {
 
         JMenuItem mntmOpen = new JMenuItem("Aç");
         mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-
+        mntmOpen.setToolTipText("Varolan Bir Dosyayı Açın");
         mntmOpen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (kayitli) {
+                if (kayitli) {               	
                     label.setText("Dosya Aciliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
@@ -410,16 +419,20 @@ public class text_editor {
                         File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                         try {
                             String str = "", str1 = "";
-                            FileReader fileread = new FileReader(file);
+                            FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
                             BufferedReader bufferrd = new BufferedReader(fileread);
+                            textRegion.setText("");
                             str1 = bufferrd.readLine();
+                            
                             while ((str = bufferrd.readLine()) != null) {
                                 str1 = str1 + "\n" + str;
                             }
                             textRegion.setText(str1);
+                            
                             acilandosya = file.getAbsoluteFile().getAbsolutePath();
                             label.setText("Dosya Açıldı " + acilandosya);
                             frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+                            kayitli = false;
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya Açılamadı");
@@ -440,7 +453,7 @@ public class text_editor {
                             File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                             try {
                                 String str = "", str1 = "";
-                                FileReader fileread = new FileReader(file);
+                                FileReader fileread = new FileReader(file, StandardCharsets.UTF_8);
                                 BufferedReader bufferrd = new BufferedReader(fileread);
                                 str1 = bufferrd.readLine();
                                 while ((str = bufferrd.readLine()) != null) {
@@ -458,12 +471,14 @@ public class text_editor {
                         }
                     }
                 }
+                
             }
         });
         mnFile.add(mntmOpen);
         JSeparator bcizgi = new JSeparator();
         mnbicim.add(bcizgi);
         JMenuItem bicimkaydet = new JMenuItem("Biçimi Kaydet");
+        bicimkaydet.setToolTipText("Mevcut Biçimleri Varsayılan Olarak Kaydedin");
         bicimkaydet.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -477,6 +492,7 @@ public class text_editor {
         });
         mnbicim.add(bicimkaydet);
         JMenuItem bicimsifir = new JMenuItem("Varsayılan biçim");
+        bicimsifir.setToolTipText("Biçim Ayarlarını Varsayılana Çevirin");
         bicimsifir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -497,7 +513,10 @@ public class text_editor {
             }
         });
         mnbicim.add(bicimsifir);
+        JMenu mnayar = new JMenu("Tercihler");
+        menuBar.add(mnayar);
         JMenuItem mntmSavef = new JMenuItem("Kaydet");
+        mntmSavef.setToolTipText("Düzenlenen Dosyayı Kaydedin");
         mntmSavef.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmSavef.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -505,7 +524,7 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                            FileWriter filewriter = new FileWriter(file);
+                            FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
                             BufferedWriter bufferwr = new BufferedWriter(filewriter);
                             bufferwr.write(textRegion.getText());
                             bufferwr.flush();
@@ -535,7 +554,7 @@ public class text_editor {
                         	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
                         }
                         try {
-                            FileWriter filewriter = new FileWriter(files, false);
+                            FileWriter filewriter = new FileWriter(files, StandardCharsets.UTF_8);
                             BufferedWriter bufferwr = new BufferedWriter(filewriter);
                             bufferwr.write(textRegion.getText());
                             bufferwr.flush();
@@ -556,6 +575,7 @@ public class text_editor {
         JSeparator ccizgi = new JSeparator();
         mnFile.add(ccizgi);
         JMenuItem mntmExit = new JMenuItem("Çıkış");
+        mntmExit.setToolTipText("Programdan Çıkış Yapın");
         mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
