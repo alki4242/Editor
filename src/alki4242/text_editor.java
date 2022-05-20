@@ -11,34 +11,24 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.UndoManager;
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import javax.swing.*;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
 import java.io.FileOutputStream;
 
 public class text_editor {
-	Preferences sond = Preferences.userNodeForPackage(alki4242.text_editor.class);
-    String surum = "V1.2.0";
+    String surum = "V1.2.2";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -75,7 +65,6 @@ public class text_editor {
                 props.setProperty("kalin", "0");
                 props.setProperty("arkaplan", "java.awt.Color[r=255,g=255,b=255]");
                 props.setProperty("tabsize", "2");
-                props.setProperty("recent", "2");
                 props.store(new FileOutputStream("kaynaklar/ayarlar.ead"), null);
                 FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
@@ -427,23 +416,25 @@ public class text_editor {
         sondosyalar.add(listemizle);
         Scanner sondosyaaktar = null;
 		try {
-			sondosyaaktar = new Scanner(rec);
-		} catch (FileNotFoundException e1) {
+			sondosyaaktar = new Scanner(rec, StandardCharsets.UTF_8);
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(frmTextEditor, "Tüh, Bir sorun oluştu \nDosya/Son Dosyalar/Listeyi Temizle \ndiyerek çözmeyi deneyebilirsiniz");
+			JOptionPane.showMessageDialog(frmTextEditor, "Eksik Dosyalar Oluşturuldu!");
 		}
         try {       	
-        while (sondosyaaktar.hasNext()) {
-        	l1.addElement(sondosyaaktar.next().replace("[", "").replace("]", "").replace(",", ""));
+        
+        while (sondosyaaktar.hasNextLine()) {
+        	l1.addElement(sondosyaaktar.nextLine());
         }
+        sondosyaaktar.close();
         } catch (Exception ihi) {}
         JList listele = new JList(l1);  
         sondosyalar.add(listele);
         listele.addListSelectionListener(new ListSelectionListener() {
         	  @Override
               public void valueChanged(ListSelectionEvent e) {
-        		  File file = new File(listele.getSelectedValue().toString().replace("[", "").replace("]", "").replace(",", ""));
+        		  File file = new File(listele.getSelectedValue().toString());
                   try {
                       String str = "", str1 = "";
                       FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
@@ -458,8 +449,7 @@ public class text_editor {
                       acilandosya = file.getAbsoluteFile().getAbsolutePath();
                       label.setText("Dosya Açıldı " + acilandosya);
                       frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                      kayitli = true;
-                      
+                      kayitli = true;                   
                   } catch (Exception ex) {
                       JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                       label.setText("Dosya Açılamadı");
@@ -502,15 +492,23 @@ public class text_editor {
                             
                             while ((str = bufferrd.readLine()) != null) {
                                 str1 = str1 + "\n" + str;
-                            }                   
+                            }      
+                            
                             textRegion.setText(str1);
                             acilandosya = file.getAbsoluteFile().getAbsolutePath();
                             l1.addElement(acilandosya);
                             FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                             BufferedWriter receb = new BufferedWriter(rece);
-                            receb.write(l1.toString());
+                            String st = "" , st1 = "";
+                            for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+                            	st = listele.getModel().getElementAt(i).toString();
+                            	st1 = st1 + "\n" + st;
+                            }
+                            receb.write(st1);
                             listele.repaint();
+                            receb.flush();
                             receb.close();
+                            rece.flush();
                             label.setText("Dosya Açıldı " + acilandosya);
                             frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                             kayitli = true;
@@ -546,9 +544,16 @@ public class text_editor {
                                 l1.addElement(acilandosya);
                                 FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                                 BufferedWriter receb = new BufferedWriter(rece);
-                                receb.write(l1.toString());
+                                String st = "" , st1 = "";
+                                for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+                                	st = listele.getModel().getElementAt(i).toString();
+                                	st1 = st1 + "\n" + st;
+                                }
+                                receb.write(st1);
                                 listele.repaint();
                                 receb.close();
+                                receb.flush();
+                                rece.flush();
                                 label.setText("Dosya Açıldı");
                                 frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                                 kayitli = true;
