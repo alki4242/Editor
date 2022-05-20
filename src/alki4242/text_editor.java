@@ -49,6 +49,7 @@ public class text_editor {
         File f = new File("kaynaklar/ayarlar.ead");
         Properties props = new Properties();
         File rec = new File("kaynaklar/s.ead");
+        File favs = new File("kaynaklar/f.ead");
         if (f.exists()) {
             try {
                 FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
@@ -418,9 +419,7 @@ public class text_editor {
 		try {
 			sondosyaaktar = new Scanner(rec, StandardCharsets.UTF_8);
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(frmTextEditor, "Eksik Dosyalar Oluşturuldu!");
+			
 		}
         try {       	
         
@@ -470,6 +469,156 @@ public class text_editor {
 				}
         	}
         });
+        JMenu favoriler = new JMenu("Favoriler");
+        mnFile.add(favoriler);
+        favoriler.setToolTipText("Hızlıca erişmek istediğiniz dosyaları buraya sabitleyin");
+        JMenuItem favorisilall = new JMenuItem("Hepsini Temizle");
+        favoriler.add(favorisilall);
+        favorisilall.setToolTipText("Tüm favori dosyalarını temizleyin");
+        JMenuItem secilifavorisil = new JMenuItem("Seçili Olanı Temizle");
+        favoriler.add(secilifavorisil);
+        secilifavorisil.setToolTipText("Favoriler Listesinde seçili olan dosyayı listeden çıkartın");
+        DefaultListModel<String> l2 = new DefaultListModel<>();
+        Scanner favori = null;
+		try {
+			favori = new Scanner(favs, StandardCharsets.UTF_8);
+		} catch (Exception e1) {
+			
+		}
+        try {       	
+        
+        while (favori.hasNextLine()) {
+        	l2.addElement(favori.nextLine());
+        }
+        favori.close();
+        } catch (Exception ihi) {}
+        JList fav = new JList(l2);
+        
+        JMenuItem acıkeklefav = new JMenuItem("Bu Dosyayı Ekle");
+        favoriler.add(acıkeklefav);
+        acıkeklefav.setToolTipText("Şuan açık olan dosyayı favorilere ekleyin");
+        JMenuItem acıksilfav = new JMenuItem("Bu Dosyayı Çıkar");
+        favoriler.add(acıksilfav);
+        acıksilfav.setToolTipText("Şuan açık olan dosyayı favorilerden çıkartın");
+
+        favorisilall.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent a) {
+        		l2.clear();
+        		fav.repaint();
+        		favs.delete();
+        		label.setText("Favoriler Temizlendi");
+        		try {
+					favs.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(frmTextEditor, e.getMessage());
+				}
+        	}
+        });
+        secilifavorisil.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent a) {             		
+        		try {
+        		l2.removeElement(fav.getSelectedValue().toString());
+        		 FileWriter rece = new FileWriter(favs, StandardCharsets.UTF_8);
+                 BufferedWriter receb = new BufferedWriter(rece);
+                 String st = "" , st1 = "";
+                 for (int i = 0; i < fav.getModel().getSize(); i++) {                                	
+                 	st = fav.getModel().getElementAt(i).toString();
+                 	st1 = st1 + "\n" + st;
+                 }
+                 receb.write(st1);
+                 fav.repaint();
+                 receb.flush();
+                 receb.close();
+                 label.setText("Seçili Dosya Favorilerden Silindi");
+        		} catch (Exception as) {
+        			JOptionPane.showMessageDialog(frmTextEditor, as.getMessage());
+        		}
+        	}
+        });
+        acıkeklefav.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent a) {
+        		if (acilandosya != "s") {
+        		try {
+        		l2.addElement(acilandosya); 
+        		 FileWriter rece = new FileWriter(favs, StandardCharsets.UTF_8);
+                 BufferedWriter receb = new BufferedWriter(rece);
+                 String st = "" , st1 = "";
+                 for (int i = 0; i < fav.getModel().getSize(); i++) {                                	
+                 	st = fav.getModel().getElementAt(i).toString();
+                 	st1 = st1 + "\n" + st;
+                 }
+                 receb.write(st1);
+                 fav.repaint();
+                 receb.flush();
+                 receb.close();
+                 label.setText("Açık Dosya Favorilere Eklendi");
+        		} catch (Exception as) {
+        			JOptionPane.showMessageDialog(frmTextEditor, as.getMessage());
+        		}
+  
+        		
+        		}       		       		
+        	}
+        });
+        acıksilfav.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent a) {
+        		if (acilandosya != "s") {
+        		l2.removeElement(acilandosya);
+        		try {
+        		 FileWriter rece = new FileWriter(favs, StandardCharsets.UTF_8);
+                 BufferedWriter receb = new BufferedWriter(rece);
+                 String st = "" , st1 = "";
+                 for (int i = 0; i < fav.getModel().getSize(); i++) {                                	
+                 	st = fav.getModel().getElementAt(i).toString();
+                 	st1 = st1 + "\n" + st;
+                 }
+                 receb.write(st1);
+                 fav.repaint();
+                 receb.flush();
+                 receb.close();
+                 label.setText("Açık Dosya Favorilerden Silindi");
+        		} catch (Exception as) {
+        			JOptionPane.showMessageDialog(frmTextEditor, as.getMessage());
+        		}
+        		
+        		}       		       		
+        	}
+        });
+        fav.addListSelectionListener(new ListSelectionListener() {
+      	  @Override
+            public void valueChanged(ListSelectionEvent e) {
+      		 int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
+                     "Bu Favori Dosya Açılsın mı?", "Uyarı!", JOptionPane.YES_NO_OPTION);
+             if (uyari == JOptionPane.YES_OPTION) {
+            	 File file = new File(fav.getSelectedValue().toString());
+                 try {
+                     String str = "", str1 = "";
+                     FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
+                     BufferedReader bufferrd = new BufferedReader(fileread);
+                     textRegion.setText("");
+                     str1 = bufferrd.readLine();
+                     
+                     while ((str = bufferrd.readLine()) != null) {
+                         str1 = str1 + "\n" + str;
+                     }         
+                     acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                     textRegion.setText(str1);                    
+                     label.setText("Dosya Açıldı " + acilandosya);
+                     frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+                     kayitli = true;                   
+                 } catch (Exception ex) {
+                     JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                     label.setText("Dosya Açılamadı");
+                 }   
+             }
+             if (uyari == JOptionPane.NO_OPTION) {
+
+             }
+      		       		  
+      	  }
+      });
         JMenuItem mntmOpen = new JMenuItem("Aç");
         mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmOpen.setToolTipText("Varolan Bir Dosyayı Açın");
@@ -508,7 +657,6 @@ public class text_editor {
                             listele.repaint();
                             receb.flush();
                             receb.close();
-                            rece.flush();
                             label.setText("Dosya Açıldı " + acilandosya);
                             frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                             kayitli = true;
@@ -553,7 +701,6 @@ public class text_editor {
                                 listele.repaint();
                                 receb.close();
                                 receb.flush();
-                                rece.flush();
                                 label.setText("Dosya Açıldı");
                                 frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
                                 kayitli = true;
@@ -567,6 +714,7 @@ public class text_editor {
                 
             }
         });
+        favoriler.add(fav);
         mnFile.add(mntmOpen);       
         JSeparator bcizgi = new JSeparator();
         mnbicim.add(bcizgi);
