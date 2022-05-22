@@ -28,7 +28,7 @@ import java.util.Scanner;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.2";
+    String surum = "V1.2.3";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -119,7 +119,7 @@ public class text_editor {
                 int karakterler = kelimeler.length();
                 label.setText("Karakter Sayısı: " + karakterler + " Kelime Sayısı: " + kelimeayri.length);
                 kayitli = false;
-                //mnbul.setPopupMenuVisible(true);
+                
 
             }
         });
@@ -152,19 +152,20 @@ public class text_editor {
         boyut.setPaintLabels(true);
         boyut.setMajorTickSpacing(2);
         String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        JComboBox fontlar = new JComboBox(fonts);
-        fontlar.setEditable(true);
-        fontlar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedFamilyName = fontlar.getSelectedItem().toString();
+        JList fontlar = new JList(fonts);
+        JScrollPane sp = new JScrollPane(fontlar);     
+        fontlar.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+            	
+                String selectedFamilyName = fontlar.getSelectedValue().toString();
                 Font font = new Font(selectedFamilyName, Font.PLAIN, boyut.getValue());
                 textRegion.setFont(font);
-                props.setProperty("Font", fontlar.getSelectedItem().toString());
-            }
+                props.setProperty("Font", fontlar.getSelectedValue().toString());
+            }	
         });
         boyut.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                String selectedFamilyName = fontlar.getSelectedItem().toString();
+                String selectedFamilyName = fontlar.getSelectedValue().toString();
                 Font font = new Font(selectedFamilyName, Font.PLAIN, boyut.getValue());
                 textRegion.setFont(font);
                 int k = boyut.getValue();
@@ -194,12 +195,12 @@ public class text_editor {
         JLabel fontbilgi = new JLabel();
         fontbilgi.setText("Fontlar");
         mnbicim.add(fontbilgi);
-        mnbicim.add(fontlar);
+        mnbicim.add(sp);
         JButton ince = new JButton();
         ince.setText("Italik");
         ince.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedFamilyName = fontlar.getSelectedItem().toString();
+                String selectedFamilyName = fontlar.getSelectedValue().toString();
                 Font font = new Font(selectedFamilyName, Font.ITALIC, boyut.getValue());
                 textRegion.setFont(font);
                 props.setProperty("kalin", "2");
@@ -218,7 +219,7 @@ public class text_editor {
         mnEdit.add(selecall);
         kalin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedFamilyName = fontlar.getSelectedItem().toString();
+                String selectedFamilyName = fontlar.getSelectedValue().toString();
                 Font font = new Font(selectedFamilyName, Font.BOLD, boyut.getValue());
                 textRegion.setFont(font);
                 props.setProperty("kalin", "1");
@@ -229,7 +230,7 @@ public class text_editor {
         cizili.setText("Sıfırla");
         cizili.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedFamilyName = fontlar.getSelectedItem().toString();
+                String selectedFamilyName = fontlar.getSelectedValue().toString();
                 Font font = new Font(selectedFamilyName, Font.PLAIN, boyut.getValue());
                 textRegion.setFont(font);
                 props.setProperty("kalin", "0");
@@ -377,7 +378,8 @@ public class text_editor {
                 JFileChooser filechooser = new JFileChooser("f:");
                 filechooser.setAcceptAllFileFilterUsed(false);
                 filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                int temp = filechooser.showSaveDialog(null);
+                int temp = filechooser.showDialog(null, "Kaydet");                   
+
                 label.setText("");
                 if (temp == JFileChooser.APPROVE_OPTION) {
                 	File file;
@@ -433,6 +435,10 @@ public class text_editor {
         listele.addListSelectionListener(new ListSelectionListener() {
         	  @Override
               public void valueChanged(ListSelectionEvent e) {
+        		  if (kayitli != true) {
+        		  int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
+                          "Dikkat! Dosyayı kaydetmeden başka bir dosyayı açıyorsun emin misin?", "Uyarı!", JOptionPane.YES_NO_OPTION);
+                  if (uyari == JOptionPane.YES_OPTION) {
         		  File file = new File(listele.getSelectedValue().toString());
                   try {
                       String str = "", str1 = "";
@@ -455,7 +461,29 @@ public class text_editor {
                   }
         		  
         	  }
-        });
+        		  } else {
+        			  File file = new File(listele.getSelectedValue().toString());
+                      try {
+                          String str = "", str1 = "";
+                          FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
+                          BufferedReader bufferrd = new BufferedReader(fileread);
+                          textRegion.setText("");
+                          str1 = bufferrd.readLine();
+                          
+                          while ((str = bufferrd.readLine()) != null) {
+                              str1 = str1 + "\n" + str;
+                          }                   
+                          textRegion.setText(str1);
+                          acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                          label.setText("Dosya Açıldı " + acilandosya);
+                          frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+                          kayitli = true;                   
+                      } catch (Exception ex) {
+                          JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                          label.setText("Dosya Açılamadı");
+                      }
+        		  }
+        	  }});
         listemizle.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent a) {
         		l1.clear();
@@ -590,7 +618,7 @@ public class text_editor {
       	  @Override
             public void valueChanged(ListSelectionEvent e) {
       		 int uyari = JOptionPane.showConfirmDialog(frmTextEditor,
-                     "Bu Favori Dosya Açılsın mı?", "Uyarı!", JOptionPane.YES_NO_OPTION);
+                     "Bu Favori Dosya Açılsın mı? \n(Kaydedilmeyen veriler silinecek)", "Uyarı!", JOptionPane.YES_NO_OPTION);
              if (uyari == JOptionPane.YES_OPTION) {
             	 File file = new File(fav.getSelectedValue().toString());
                  try {
@@ -628,7 +656,7 @@ public class text_editor {
                     label.setText("Dosya Aciliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                    int temp = filechooser.showOpenDialog(null);
+                    int temp = filechooser.showDialog(null, "Aç");                   
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
                         File file = new File(filechooser.getSelectedFile().getAbsolutePath());
@@ -673,10 +701,10 @@ public class text_editor {
                     if (onay == JOptionPane.YES_OPTION) {
                         label.setText("Dosya Aciliyor");
                         JFileChooser filechooser = new JFileChooser("f:");
-                        filechooser
-                                .addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                        int temp = filechooser.showOpenDialog(null);
+                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                        int temp = filechooser.showDialog(null, "Aç");                   
                         label.setText("");
+                        filechooser.setDialogTitle("Aç");
                         if (temp == JFileChooser.APPROVE_OPTION) {
                             File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                             try {
@@ -764,7 +792,7 @@ public class text_editor {
         	public void actionPerformed(ActionEvent e) {
         		LocalTime zaman = LocalTime.now();
         		 DateTimeFormatter zamanano = DateTimeFormatter.ofPattern("HH:mm:ss");
-
+        		 kayitli = false;  
         		    String naonuz = zaman.format(zamanano);
         		textRegion.insert("[" + naonuz + "]", textRegion.getCaretPosition());
         	}
@@ -774,6 +802,7 @@ public class text_editor {
         tarih.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		LocalDate zaman = LocalDate.now();
+        		kayitli = false;  
         		textRegion.insert("[" + LocalDate.now() + "]", textRegion.getCaretPosition());
         	}
         });
@@ -783,11 +812,43 @@ public class text_editor {
         	public void actionPerformed(ActionEvent e) {
         		LocalTime zaman = LocalTime.now();
         		 DateTimeFormatter zamanano = DateTimeFormatter.ofPattern("HH:mm:ss");
-
+        		 kayitli = false;  
         		    String naonuz = zaman.format(zamanano);
         		textRegion.insert("[" + LocalDate.now() + " " + naonuz + "]", textRegion.getCaretPosition());
         	}
         });
+        JMenuItem dosyadanekle = new JMenuItem("Dosyadan Aktar");
+        dosyadanekle.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		  JFileChooser filechooser = new JFileChooser("f:");
+                  filechooser.setAcceptAllFileFilterUsed(true);
+                  filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                  int temp = filechooser.showDialog(null, "Seç");                   
+
+                  label.setText("");
+                  if (temp == JFileChooser.APPROVE_OPTION) {
+                  	File files;
+                      acilandosya = filechooser.getSelectedFile().getAbsolutePath();                     
+                      	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
+                      try {
+                    	  String str = "", str1 = "";
+                          FileReader fileread = new FileReader(files, StandardCharsets.UTF_8);
+                          BufferedReader bufferrd = new BufferedReader(fileread);
+                          str1 = bufferrd.readLine();
+                          while ((str = bufferrd.readLine()) != null) {
+                              str1 = str1 + "\n" + str;
+                          }
+                          textRegion.insert(str1, textRegion.getCaretPosition());
+                          label.setText("Dosyadan Aktarıldı");
+                          kayitli = false;               
+                      } catch (Exception ex) {
+                          JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                          label.setText("Dosyadan Aktarılamadı");
+
+                      }	
+        	}
+        	}});
+        mnekle.add(dosyadanekle);
         JMenuItem mntmSavef = new JMenuItem("Kaydet");
         mntmSavef.setToolTipText("Düzenlenen Dosyayı Kaydedin");
         mntmSavef.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
@@ -816,7 +877,8 @@ public class text_editor {
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.setAcceptAllFileFilterUsed(false);
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                    int temp = filechooser.showSaveDialog(null);
+                    int temp = filechooser.showDialog(null, "Kaydet");                   
+
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
                     	File files;
