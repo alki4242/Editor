@@ -1,6 +1,7 @@
 Programda font ayarlarken listeden tıklayınca yapmıyor adını orda ki kısma yazıp enter tuşuna basmanız gerekmektedir
 
-Bu Program bir çok yazıyı açmanıza yardımcı olur biçim menüsünden yapacağınız ayarlar ile kendi zevkinize göre ayarlayabilirsiniz, biçim menüsünden yapılan ayarlar dosyaya işlememektedir sadece programda seçtiğiniz şeylere göre gösterir ve biçimi kalıcı yapmak isterseniz Biçimi kaydedebilirsiniz (biçim menüsünden)
+Bu Program bir çok yazıyı açmanıza yardımcı olur biçim menüsünden yapacağınız ayarlar ile kendi zevkinize göre ayarlayabilirsiniz, biçim menüsünden yapılan biçimi kalıcı yapmak isterseniz Biçimi kaydedebilirsiniz (biçim menüsünden)
+Ayrıca .zedf biçimi ile biçimi ile biçimlerinizi dosyaya kaydedebilirsiniz
 
 Kaydettiğiniz biçim ayarlar.ead dosyasına kaydedilmektedir. başkalarının kullandığı biçim dosyalarını kullanmak isterseniz bu dosya ile değiştirmeniz yeterli olucaktır
 
