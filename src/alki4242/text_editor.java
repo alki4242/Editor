@@ -3,6 +3,8 @@
 import java.lang.Integer;
 import java.lang.String;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -15,9 +17,12 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import javax.swing.*;
@@ -25,15 +30,19 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.4";
+    String surum = "V1.2.5";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
     public text_editor() {
-        initalize();
+			initalize();
+		
       
         
     }
@@ -42,10 +51,16 @@ public class text_editor {
         window.frmTextEditor.setVisible(true);
     }
 	public void initalize() {
-		File folder = new File("./kaynaklar");
-        if (!folder.exists()) { 
-				folder.mkdir();
-        }
+		File klasor = new File ("./kaynaklar");
+		if (!klasor.exists()) {
+			try {
+				klasor.mkdirs();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+        		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + e1);
+
+			}
+		}
         File f = new File("kaynaklar/ayarlar.ead");
         Properties props = new Properties();
         File rec = new File("kaynaklar/s.ead");
@@ -55,11 +70,11 @@ public class text_editor {
                 FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
             } catch (Exception e) {
-
+            		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + e);
             }
         } else {
             try {
-                props.setProperty("Font", "Helvetica Neue");
+                props.setProperty("Font", "Calibri");
                 props.setProperty("metinr", "java.awt.Color[r=0,g=0,b=0]");
                 props.setProperty("metins", "java.awt.Color[r=0,g=0,b=0]");
                 props.setProperty("metinb", "20");
@@ -70,6 +85,7 @@ public class text_editor {
                 FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
             } catch (IOException g) {
+        		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + g);
 
             }
         }
@@ -172,8 +188,10 @@ public class text_editor {
         boyut.setPaintTicks(true);
         boyut.setPaintLabels(true);
         boyut.setMajorTickSpacing(2);
+        
         String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         JList fontlar = new JList(fonts);
+        fontlar.setSelectedValue(props.getProperty("Font"), false);
         JScrollPane sp = new JScrollPane(fontlar);     
         fontlar.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -186,7 +204,10 @@ public class text_editor {
         });
         boyut.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                String selectedFamilyName = fontlar.getSelectedValue().toString();
+            	String selectedFamilyName = fontlar.getSelectedValue().toString();
+            	
+               
+            	
                 Font font = new Font(selectedFamilyName, Font.PLAIN, boyut.getValue());
                 textRegion.setFont(font);
                 int k = boyut.getValue();
@@ -398,6 +419,7 @@ public class text_editor {
                 JFileChooser filechooser = new JFileChooser("f:");
                 filechooser.setAcceptAllFileFilterUsed(false);
                 filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
                 int temp = filechooser.showDialog(null, "Kaydet");                   
 
                 label.setText("");
@@ -410,21 +432,31 @@ public class text_editor {
                     } else {
                     	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
                     }
+                    if (!acilandosya.endsWith(".zedf") && filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
+                   	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
+                   } else {
+                   	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                   }
+                    if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
                     try {
-                        acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                        FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
-                        BufferedWriter bufferwr = new BufferedWriter(filewriter);
-                        bufferwr.write(textRegion.getText());
-                        bufferwr.flush();
-                        bufferwr.close();
-                        label.setText("Dosya kaydedildi " + file.getAbsolutePath());
-                        frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                        kayitli = true;
+                    	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                    	zkaydet(file,textRegion,label,props);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                         label.setText("Dosya kaydedilemedi");
 
                     }
+                    }
+                    if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                        try {
+                            acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                           kaydet(filechooser.getSelectedFile(),textRegion,label);
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                            label.setText("Dosya kaydedilemedi");
+
+                        }
+                        }
                 }
             }
         });
@@ -460,20 +492,10 @@ public class text_editor {
                   if (uyari == JOptionPane.YES_OPTION) {
         		  File file = new File(listele.getSelectedValue().toString());
                   try {
-                      String str = "", str1 = "";
-                      FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
-                      BufferedReader bufferrd = new BufferedReader(fileread);
-                      textRegion.setText("");
-                      str1 = bufferrd.readLine();
-                      
-                      while ((str = bufferrd.readLine()) != null) {
-                          str1 = str1 + "\n" + str;
-                      }                   
-                      textRegion.setText(str1);
-                      acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                      label.setText("Dosya Açıldı " + acilandosya);
-                      frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                      kayitli = true;                   
+                	  acilandosya = file.getAbsolutePath();
+                	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);   
+
                   } catch (Exception ex) {
                       JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                       label.setText("Dosya Açılamadı");
@@ -483,20 +505,9 @@ public class text_editor {
         		  } else {
         			  File file = new File(listele.getSelectedValue().toString());
                       try {
-                          String str = "", str1 = "";
-                          FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
-                          BufferedReader bufferrd = new BufferedReader(fileread);
-                          textRegion.setText("");
-                          str1 = bufferrd.readLine();
-                          
-                          while ((str = bufferrd.readLine()) != null) {
-                              str1 = str1 + "\n" + str;
-                          }                   
-                          textRegion.setText(str1);
-                          acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                          label.setText("Dosya Açıldı " + acilandosya);
-                          frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                          kayitli = true;                   
+                    	  acilandosya = file.getAbsolutePath();
+                     	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                     	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
                       } catch (Exception ex) {
                           JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                           label.setText("Dosya Açılamadı");
@@ -644,17 +655,9 @@ public class text_editor {
              if (uyari == JOptionPane.YES_OPTION) {
             	 File file = new File(fav.getSelectedValue().toString());
                  try {
-                     String str = "", str1 = "";
-                     FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
-                     BufferedReader bufferrd = new BufferedReader(fileread);
-                     textRegion.setText("");
-                     str1 = bufferrd.readLine();
-                     
-                     while ((str = bufferrd.readLine()) != null) {
-                         str1 = str1 + "\n" + str;
-                     }         
-                     acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                     textRegion.setText(str1);                  
+                	 acilandosya = file.getAbsolutePath();
+                	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);           
                      l1.add(0, acilandosya);
                      //l1.addElement(acilandosya);
                      FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
@@ -685,17 +688,9 @@ public class text_editor {
       	  } else {
       		File file = new File(fav.getSelectedValue().toString());
             try {
-                String str = "", str1 = "";
-                FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
-                BufferedReader bufferrd = new BufferedReader(fileread);
-                textRegion.setText("");
-                str1 = bufferrd.readLine();
-                
-                while ((str = bufferrd.readLine()) != null) {
-                    str1 = str1 + "\n" + str;
-                }         
-                acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                textRegion.setText(str1);                  
+            	 acilandosya = file.getAbsolutePath();
+            	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+            	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
                 l1.add(0, acilandosya);
                 //l1.addElement(acilandosya);
                 FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
@@ -728,23 +723,21 @@ public class text_editor {
                     label.setText("Dosya Aciliyor");
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
                     int temp = filechooser.showDialog(null, "Aç");                   
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
                         File file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                        acilandosya = file.getAbsolutePath();          
+                        if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
                         try {
-                            String str = "", str1 = "";
-                            FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
-                            BufferedReader bufferrd = new BufferedReader(fileread);
-                            textRegion.setText("");
-                            str1 = bufferrd.readLine();
-                            
-                            while ((str = bufferrd.readLine()) != null) {
-                                str1 = str1 + "\n" + str;
-                            }      
-                            
-                            textRegion.setText(str1);
-                            acilandosya = file.getAbsoluteFile().getAbsolutePath();
+							ac(file,textRegion,label);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(frmTextEditor, e1.getMessage());
+                            label.setText("Dosya Açılamadı");
+						}	
+                        try {                           
                             l1.add(0, acilandosya);
                             //l1.addElement(acilandosya);
                             FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
@@ -757,14 +750,41 @@ public class text_editor {
                             receb.write(st1);
                             listele.repaint();
                             receb.flush();
-                            receb.close();
-                            label.setText("Dosya Açıldı " + acilandosya);
-                            frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                            kayitli = true;
+                            receb.close();                                                       
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                            label.setText("Dosya Açılamadı");
+                        }
+                        } if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {                    	
+                        try {
+                        	acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                        	zac(textRegion,label);
+                                l1.add(0, acilandosya);
+                                //l1.addElement(acilandosya);
+                                FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                                BufferedWriter receb = new BufferedWriter(rece);
+                                String st = "" , st1 = "";
+                                for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+                                	st = listele.getModel().getElementAt(i).toString();
+                                	st1 = st1 + "\n" + st;
+                                }
+                                receb.write(st1);
+                                listele.repaint();
+                                receb.flush();
+                                receb.close();
+                                label.setText("Dosya Açıldı " + acilandosya);
+                                frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+                                kayitli = true;
+                    		
+                        	                       		
+                        		 
+                        	                         	
+                        	
                             
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya Açılamadı");
+                        }
                         }
                     }
                 } else {
@@ -775,21 +795,17 @@ public class text_editor {
                         label.setText("Dosya Aciliyor");
                         JFileChooser filechooser = new JFileChooser("f:");
                         filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
+
                         int temp = filechooser.showDialog(null, "Aç");                   
                         label.setText("");
                         filechooser.setDialogTitle("Aç");
                         if (temp == JFileChooser.APPROVE_OPTION) {
                             File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                             try {
-                                String str = "", str1 = "";
-                                FileReader fileread = new FileReader(file, StandardCharsets.UTF_8);
-                                BufferedReader bufferrd = new BufferedReader(fileread);
-                                str1 = bufferrd.readLine();
-                                while ((str = bufferrd.readLine()) != null) {
-                                    str1 = str1 + "\n" + str;
-                                }
-                                textRegion.setText(str1);
-                                acilandosya = file.getAbsoluteFile().getAbsolutePath();
+                            	 acilandosya = file.getAbsolutePath();
+                            	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                            	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);                                 
                                 l1.add(0,acilandosya);
                                 FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                                 BufferedWriter receb = new BufferedWriter(rece);
@@ -825,7 +841,8 @@ public class text_editor {
             public void actionPerformed(ActionEvent e) {
                 try {
                     props.store(new FileOutputStream("kaynaklar/ayarlar.ead"), null);
-                } catch (IOException g) {
+                } catch (Exception g) {
+            		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + g);
 
                 }
 
@@ -838,7 +855,7 @@ public class text_editor {
         bicimsifir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    props.setProperty("Font", "Helvetica Neue");
+                    props.setProperty("Font", "Calibri");
                     props.setProperty("metinr", "java.awt.Color[r=0,g=0,b=0]");
                     props.setProperty("metins", "java.awt.Color[r=0,g=0,b=0]");
                     props.setProperty("metinb", "20");
@@ -847,6 +864,7 @@ public class text_editor {
                     props.setProperty("tabsize", "2");
                     props.store(new FileOutputStream("kaynaklar/ayarlar.ead"), null);
                 } catch (IOException g) {
+            		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + g);
 
                 }
 
@@ -930,13 +948,9 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                            FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
-                            BufferedWriter bufferwr = new BufferedWriter(filewriter);
-                            bufferwr.write(textRegion.getText());
-                            bufferwr.flush();
-                            bufferwr.close();
-                            label.setText("Dosya Kaydedildi " + file.getAbsolutePath());
-                             kayitli = true;
+                        	if (file.getName().endsWith(".edf")) kaydet(file,textRegion,label);
+                        	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props);
+
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                         }
@@ -949,6 +963,7 @@ public class text_editor {
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.setAcceptAllFileFilterUsed(false);
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
                     int temp = filechooser.showDialog(null, "Kaydet");                   
 
                     label.setText("");
@@ -960,19 +975,32 @@ public class text_editor {
                         } else {
                         	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
                         }
+                        if (!acilandosya.endsWith(".zedf") && filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
+                       	 files = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
+                       } else {
+                       	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
+                       }
+                        if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
                         try {
-                            FileWriter filewriter = new FileWriter(files, StandardCharsets.UTF_8);
-                            BufferedWriter bufferwr = new BufferedWriter(filewriter);
-                            bufferwr.write(textRegion.getText());
-                            bufferwr.flush();
-                            bufferwr.close();
-                            label.setText("Dosya kaydedildi");
-                            kayitli = true;
+                        	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                        	 kaydet(files,textRegion,label);
                             frmTextEditor.setTitle("Editör " + surum + " - " + files.getName());
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya kaydedilemedi");
 
+                        }
+                    }
+                        if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.edf)") {
+                            try {
+                            	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                            	 zkaydet(files,textRegion,label,props);
+                                frmTextEditor.setTitle("Editör " + surum + " - " + files.getName());
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                                label.setText("Dosya kaydedilemedi");
+
+                            }
                         }
                     }
                 }
@@ -1085,6 +1113,106 @@ public class text_editor {
         
 
     }
+public void ac(File file,JTextArea textRegion,JLabel label) throws IOException {
     
+         String str = "", str1 = "";
+         FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
+         BufferedReader bufferrd = new BufferedReader(fileread);
+         textRegion.setText("");
+         str1 = bufferrd.readLine();
+         
+         while ((str = bufferrd.readLine()) != null) {
+             str1 = str1 + "\n" + str;
+         }                   
+         textRegion.setText(str1);
+         acilandosya = file.getAbsoluteFile().getAbsolutePath();
+         label.setText("Dosya Açıldı " + acilandosya);
+         frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+         kayitli = true;                   
+    
+}    public void kaydet(File file,JTextArea textRegion,JLabel label) throws IOException {
+	
+     FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
+     BufferedWriter bufferwr = new BufferedWriter(filewriter);
+     bufferwr.write(textRegion.getText());
+     bufferwr.flush();
+     bufferwr.close();
+     label.setText("Dosya kaydedildi " + file.getAbsolutePath());
+     frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+     kayitli = true;     
+	
+} public void zkaydet(File file,JTextArea textRegion,JLabel label,Properties props) throws IOException {
+	 
+     File tempf = new File("./belge.edf");
+     FileWriter filewriter = new FileWriter(tempf, StandardCharsets.UTF_8);
+     BufferedWriter bufferwr = new BufferedWriter(filewriter);
+     bufferwr.write(textRegion.getText());
+     bufferwr.flush();
+     bufferwr.close(); 
+     FileOutputStream fos = new FileOutputStream(file);
+     ZipOutputStream zos = new ZipOutputStream(fos);
+     zos.putNextEntry(new ZipEntry(tempf.getName()));
+     byte[] bytes = Files.readAllBytes(Paths.get(tempf.getName()));
+     zos.write(bytes, 0, bytes.length);
+     zos.closeEntry();                      
+    FileOutputStream fo = new FileOutputStream("./bicim.ead");                        
+     
+         props.store(fo, null);
+         fo.close();
+                       
+     
+     File zif = new File("./bicim.ead");                                                                 
+     zos.putNextEntry(new ZipEntry(zif.getName()));
+     byte[] bytess = Files.readAllBytes(Paths.get(zif.getName()));
+     zos.write(bytess, 0, bytess.length);
+     zos.closeEntry();
+     zos.close();
+     zif.delete();
+     tempf.delete();
+     label.setText("Dosya kaydedildi " + file.getAbsolutePath());
+     frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+     kayitli = true;
+	 
+} public void zac(JTextArea textRegion,JLabel label) throws IOException {
+	ZipFile zf = new ZipFile(acilandosya);
+	
+	  InputStream in = zf.getInputStream(zf.getEntry("bicim.ead"));
+	  Properties tempprops = new Properties();
+		tempprops.load(in); 
+		int boyut = Integer.parseInt(tempprops.getProperty("metinb"));
+		int kalin = Integer.parseInt(tempprops.getProperty("kalin"));
+		Font font = new Font(tempprops.getProperty("Font"), kalin, boyut);
+		textRegion.setFont(font); 
+		String barkplan = tempprops.getProperty("arkaplan");
+        Scanner arkplans = new Scanner(barkplan);
+        arkplans.useDelimiter("\\D+");
+        Color arkplan = new Color(arkplans.nextInt(), arkplans.nextInt(), arkplans.nextInt());
+        textRegion.setBackground(arkplan);
+        String barkplans = tempprops.getProperty("metinr");
+        Scanner arkplanss = new Scanner(barkplans);
+        arkplanss.useDelimiter("\\D+");
+        Color arkplansa = new Color(arkplanss.nextInt(), arkplanss.nextInt(), arkplanss.nextInt());
+        textRegion.setForeground(arkplansa);
+        String barkplanss = tempprops.getProperty("metins");
+        Scanner arkplansss = new Scanner(barkplan);
+        arkplansss.useDelimiter("\\D+");
+        Color arkplansas = new Color(arkplansss.nextInt(), arkplansss.nextInt(), arkplansss.nextInt());
+        textRegion.setSelectedTextColor(arkplansas);
+	  InputStream on = zf.getInputStream(zf.getEntry("belge.edf"));                 			
+		String str = "", str1 = "";                      
+        BufferedReader bufferrd = new BufferedReader(new InputStreamReader(on,StandardCharsets.UTF_8));
+        textRegion.setText("");
+        str1 = bufferrd.readLine();
+        
+        while ((str = bufferrd.readLine()) != null) {
+            str1 = str1 + "\n" + str;
+        }      
+        
+        textRegion.setText(str1);
+        zf.close();
+        label.setText("Dosya Açıldı " + acilandosya);
+        frmTextEditor.setTitle("Editör " + surum + " - " + acilandosya);
+        kayitli = true;
+}
 }
 //
