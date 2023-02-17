@@ -13,11 +13,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.UndoManager;
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.FileDialog;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,6 +28,12 @@ import java.awt.BorderLayout;
 import javax.swing.*;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
@@ -36,7 +42,7 @@ import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.5";
+    String surum = "V1.2.6";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -126,6 +132,7 @@ public class text_editor {
         textRegion.setTabSize(tabb);
         textRegion.setSelectedTextColor(bms);
         JLabel label = new JLabel();
+        textRegion.setDragEnabled(true);
         textRegion.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -644,6 +651,39 @@ public class text_editor {
         		}
         	}
         });
+     
+        textRegion.setDropTarget(new DropTarget() {
+           public synchronized void drop(DropTargetDropEvent evt) {
+        	   evt.acceptDrop(DnDConstants.ACTION_COPY);
+        	   try {
+        		   evt.acceptDrop(DnDConstants.ACTION_COPY);
+                   List<File> droppedFiles = (List<File>) evt
+                           .getTransferable().getTransferData(
+                                   DataFlavor.javaFileListFlavor);
+                   for (File file : droppedFiles) {
+                	   if (kayitli) {
+                		   label.setText("Dosya Aciliyor");
+       					ac(file,textRegion,label);
+       				} else {
+       					 int onay = JOptionPane.showConfirmDialog(frmTextEditor,
+       	                            "Dikkat! Mevcut dosyayı kaydetmeden başka bir dosya açıyorsun emin misin?", "Uyari!",
+       	                            JOptionPane.YES_NO_OPTION);
+       	                    if (onay == JOptionPane.YES_OPTION) {
+       	                        label.setText("Dosya Aciliyor");
+       	                        ac((File) file,textRegion,label);
+       	                        }                   
+                   }
+				
+				}
+        	   } catch (UnsupportedFlavorException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	   
+           }});
        
         
         fav.addMouseListener(new MouseAdapter() {
@@ -724,12 +764,14 @@ public class text_editor {
                     JFileChooser filechooser = new JFileChooser("f:");
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
+                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Metin Dosyaları (.txt)", "txt"));
+
                     int temp = filechooser.showDialog(null, "Aç");                   
                     label.setText("");
                     if (temp == JFileChooser.APPROVE_OPTION) {
                         File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                         acilandosya = file.getAbsolutePath();          
-                        if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                        if (filechooser.getFileFilter().getDescription() != "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
                         try {
 							ac(file,textRegion,label);
 						} catch (IOException e1) {
@@ -796,6 +838,7 @@ public class text_editor {
                         JFileChooser filechooser = new JFileChooser("f:");
                         filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
                         filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
+                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Metin Dosyaları (.txt)", "txt"));
 
                         int temp = filechooser.showDialog(null, "Aç");                   
                         label.setText("");
@@ -804,7 +847,7 @@ public class text_editor {
                             File file = new File(filechooser.getSelectedFile().getAbsolutePath());
                             try {
                             	 acilandosya = file.getAbsolutePath();
-                            	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                            	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
                             	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);                                 
                                 l1.add(0,acilandosya);
                                 FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
@@ -948,7 +991,7 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                        	if (file.getName().endsWith(".edf")) kaydet(file,textRegion,label);
+                        	if (!file.getName().endsWith(".zedf")) kaydet(file,textRegion,label);
                         	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props);
 
                         } catch (Exception ex) {
