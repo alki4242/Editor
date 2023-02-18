@@ -13,7 +13,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.UndoManager;
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.FileDialog;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -500,7 +499,7 @@ public class text_editor {
         		  File file = new File(listele.getSelectedValue().toString());
                   try {
                 	  acilandosya = file.getAbsolutePath();
-                	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
                 	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);   
 
                   } catch (Exception ex) {
@@ -664,13 +663,39 @@ public class text_editor {
                 	   if (kayitli) {
                 		   label.setText("Dosya Aciliyor");
        					ac(file,textRegion,label);
+       					l1.add(0, file.getAbsolutePath());
+                        //l1.addElement(acilandosya);
+                        FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                        BufferedWriter receb = new BufferedWriter(rece);
+                        String st = "" , st1 = "";
+                        for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+                        	st = listele.getModel().getElementAt(i).toString();
+                        	st1 = st1 + "\n" + st;
+                        }
+                        receb.write(st1);
+                        listele.repaint();
+                        receb.flush();
+                        receb.close();
        				} else {
        					 int onay = JOptionPane.showConfirmDialog(frmTextEditor,
        	                            "Dikkat! Mevcut dosyayı kaydetmeden başka bir dosya açıyorsun emin misin?", "Uyari!",
        	                            JOptionPane.YES_NO_OPTION);
        	                    if (onay == JOptionPane.YES_OPTION) {
        	                        label.setText("Dosya Aciliyor");
-       	                        ac((File) file,textRegion,label);
+       	                        ac(file,textRegion,label);
+       	                     l1.add(0, file.getAbsolutePath());
+                             //l1.addElement(acilandosya);
+                             FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                             BufferedWriter receb = new BufferedWriter(rece);
+                             String st = "" , st1 = "";
+                             for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+                             	st = listele.getModel().getElementAt(i).toString();
+                             	st1 = st1 + "\n" + st;
+                             }
+                             receb.write(st1);
+                             listele.repaint();
+                             receb.flush();
+                             receb.close();
        	                        }                   
                    }
 				
@@ -696,7 +721,7 @@ public class text_editor {
             	 File file = new File(fav.getSelectedValue().toString());
                  try {
                 	 acilandosya = file.getAbsolutePath();
-                	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
                 	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);           
                      l1.add(0, acilandosya);
                      //l1.addElement(acilandosya);
@@ -729,7 +754,7 @@ public class text_editor {
       		File file = new File(fav.getSelectedValue().toString());
             try {
             	 acilandosya = file.getAbsolutePath();
-            	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+            	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
             	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
                 l1.add(0, acilandosya);
                 //l1.addElement(acilandosya);
