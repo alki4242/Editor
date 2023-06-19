@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.6";
+    String surum = "V1.2.7";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -512,7 +512,7 @@ public class text_editor {
         			  File file = new File(listele.getSelectedValue().toString());
                       try {
                     	  acilandosya = file.getAbsolutePath();
-                     	 if (file.getName().endsWith(".edf")) ac(file,textRegion,label);   
+                     	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);  
                      	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
                       } catch (Exception ex) {
                           JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
