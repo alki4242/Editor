@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.7";
+    String surum = "V1.2.8";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -403,6 +403,7 @@ public class text_editor {
                         acilandosya = "s";
                         label.setText("Yeni Dosya açıldı");
                         frmTextEditor.setTitle("Editör " + surum + " - Yeni Dosya");
+                        kayitli = true;
 
                     }
                 }
@@ -417,55 +418,7 @@ public class text_editor {
             }
         });
         mninfo.add(mninfoin);
-        mntmSave.setToolTipText("Düzenlenen Dosyayı Farklı Şekilde Kaydedin");
-        mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F ,ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK ));
-        mntmSave.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                label.setText("Dosya kaydediliyor");
-                JFileChooser filechooser = new JFileChooser("f:");
-                filechooser.setAcceptAllFileFilterUsed(false);
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
-                int temp = filechooser.showDialog(null, "Kaydet");                   
-
-                label.setText("");
-                if (temp == JFileChooser.APPROVE_OPTION) {
-                	File file;
-                    acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                    
-                    if (!acilandosya.endsWith(".edf") && filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
-                    	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
-                    } else {
-                    	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
-                    }
-                    if (!acilandosya.endsWith(".zedf") && filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
-                   	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
-                   } else {
-                   	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
-                   }
-                    if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
-                    try {
-                    	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                    	zkaydet(file,textRegion,label,props);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                        label.setText("Dosya kaydedilemedi");
-
-                    }
-                    }
-                    if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
-                        try {
-                            acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                           kaydet(filechooser.getSelectedFile(),textRegion,label);
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                            label.setText("Dosya kaydedilemedi");
-
-                        }
-                        }
-                }
-            }
-        });
+        
         DefaultListModel<String> l1 = new DefaultListModel<>();
 
        
@@ -499,9 +452,9 @@ public class text_editor {
         		  File file = new File(listele.getSelectedValue().toString());
                   try {
                 	  acilandosya = file.getAbsolutePath();
-                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
-                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);   
-
+                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
+                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);   
+                	 l1.add(0,acilandosya);
                   } catch (Exception ex) {
                       JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                       label.setText("Dosya Açılamadı");
@@ -512,8 +465,9 @@ public class text_editor {
         			  File file = new File(listele.getSelectedValue().toString());
                       try {
                     	  acilandosya = file.getAbsolutePath();
-                     	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);  
-                     	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
+                     	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);  
+                     	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);  
+                     	l1.add(0,acilandosya);
                       } catch (Exception ex) {
                           JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                           label.setText("Dosya Açılamadı");
@@ -584,7 +538,8 @@ public class text_editor {
         	public void actionPerformed(ActionEvent a) {
         		if (acilandosya != "s") {
         		try {
-        		l2.add(0,acilandosya); 
+        		
+        		if(l2.contains(acilandosya)) l2.removeElement(acilandosya);
         		 FileWriter rece = new FileWriter(favs, StandardCharsets.UTF_8);
                  BufferedWriter receb = new BufferedWriter(rece);
                  String st = "" , st1 = "";
@@ -592,6 +547,7 @@ public class text_editor {
                  	st = fav.getModel().getElementAt(i).toString();
                  	st1 = st1 + "\n" + st;
                  }
+                 l2.add(0,acilandosya); 
                  receb.write(st1);
                  fav.repaint();
                  receb.flush();
@@ -662,10 +618,13 @@ public class text_editor {
                    for (File file : droppedFiles) {
                 	   if (kayitli) {
                 		   label.setText("Dosya Aciliyor");
-       					ac(file,textRegion,label);
-       					l1.add(0, file.getAbsolutePath());
+                		   
+                		   acilandosya = file.getAbsolutePath();
+                		   if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
+                      	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);         
+                      	l1.add(0, file.getAbsolutePath());
                         //l1.addElement(acilandosya);
-                        FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                        /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                         BufferedWriter receb = new BufferedWriter(rece);
                         String st = "" , st1 = "";
                         for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
@@ -675,17 +634,19 @@ public class text_editor {
                         receb.write(st1);
                         listele.repaint();
                         receb.flush();
-                        receb.close();
+                        receb.close();*/
        				} else {
        					 int onay = JOptionPane.showConfirmDialog(frmTextEditor,
        	                            "Dikkat! Mevcut dosyayı kaydetmeden başka bir dosya açıyorsun emin misin?", "Uyari!",
        	                            JOptionPane.YES_NO_OPTION);
        	                    if (onay == JOptionPane.YES_OPTION) {
        	                        label.setText("Dosya Aciliyor");
-       	                        ac(file,textRegion,label);
-       	                     l1.add(0, file.getAbsolutePath());
+       	                     
+       	                     if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
+       	                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);         
+       	                	l1.add(0, file.getAbsolutePath());
                              //l1.addElement(acilandosya);
-                             FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                            /* FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                              BufferedWriter receb = new BufferedWriter(rece);
                              String st = "" , st1 = "";
                              for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
@@ -695,7 +656,7 @@ public class text_editor {
                              receb.write(st1);
                              listele.repaint();
                              receb.flush();
-                             receb.close();
+                             receb.close();*/
        	                        }                   
                    }
 				
@@ -721,11 +682,12 @@ public class text_editor {
             	 File file = new File(fav.getSelectedValue().toString());
                  try {
                 	 acilandosya = file.getAbsolutePath();
-                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
-                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);           
-                     l1.add(0, acilandosya);
+                	 
+                	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
+                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);           
+                	 l1.add(0, acilandosya);
                      //l1.addElement(acilandosya);
-                     FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                     /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                      BufferedWriter receb = new BufferedWriter(rece);
                      String st = "" , st1 = "";
                      for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
@@ -738,7 +700,7 @@ public class text_editor {
                      receb.close();
                      label.setText("Dosya Açıldı " + acilandosya);
                      frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                     kayitli = true;
+                     kayitli = true;*/
                      
                  } catch (Exception ex) {
                      JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
@@ -754,11 +716,12 @@ public class text_editor {
       		File file = new File(fav.getSelectedValue().toString());
             try {
             	 acilandosya = file.getAbsolutePath();
-            	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
-            	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);  
-                l1.add(0, acilandosya);
+            	
+            	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
+            	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);  
+            	 l1.add(0, acilandosya);
                 //l1.addElement(acilandosya);
-                FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+                /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                 BufferedWriter receb = new BufferedWriter(rece);
                 String st = "" , st1 = "";
                 for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
@@ -771,7 +734,7 @@ public class text_editor {
                 receb.close();
                 label.setText("Dosya Açıldı " + acilandosya);
                 frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                kayitli = true;
+                kayitli = true;*/
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
@@ -785,115 +748,13 @@ public class text_editor {
         mntmOpen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (kayitli) {               	
-                    label.setText("Dosya Aciliyor");
-                    JFileChooser filechooser = new JFileChooser("f:");
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
-                    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Metin Dosyaları (.txt)", "txt"));
-
-                    int temp = filechooser.showDialog(null, "Aç");                   
-                    label.setText("");
-                    if (temp == JFileChooser.APPROVE_OPTION) {
-                        File file = new File(filechooser.getSelectedFile().getAbsolutePath());
-                        acilandosya = file.getAbsolutePath();          
-                        if (filechooser.getFileFilter().getDescription() != "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
-                        try {
-							ac(file,textRegion,label);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(frmTextEditor, e1.getMessage());
-                            label.setText("Dosya Açılamadı");
-						}	
-                        try {                           
-                            l1.add(0, acilandosya);
-                            //l1.addElement(acilandosya);
-                            FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
-                            BufferedWriter receb = new BufferedWriter(rece);
-                            String st = "" , st1 = "";
-                            for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
-                            	st = listele.getModel().getElementAt(i).toString();
-                            	st1 = st1 + "\n" + st;
-                            }
-                            receb.write(st1);
-                            listele.repaint();
-                            receb.flush();
-                            receb.close();                                                       
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                            label.setText("Dosya Açılamadı");
-                        }
-                        } if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {                    	
-                        try {
-                        	acilandosya = file.getAbsoluteFile().getAbsolutePath();
-                        	zac(textRegion,label);
-                                l1.add(0, acilandosya);
-                                //l1.addElement(acilandosya);
-                                FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
-                                BufferedWriter receb = new BufferedWriter(rece);
-                                String st = "" , st1 = "";
-                                for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
-                                	st = listele.getModel().getElementAt(i).toString();
-                                	st1 = st1 + "\n" + st;
-                                }
-                                receb.write(st1);
-                                listele.repaint();
-                                receb.flush();
-                                receb.close();
-                                label.setText("Dosya Açıldı " + acilandosya);
-                                frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                                kayitli = true;
-                    		
-                        	                       		
-                        		 
-                        	                         	
-                        	
-                            
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                            label.setText("Dosya Açılamadı");
-                        }
-                        }
-                    }
+                    dac(label,textRegion,listele,l1,rec);
                 } else {
                     int onay = JOptionPane.showConfirmDialog(frmTextEditor,
                             "Dikkat! Mevcut dosyayı kaydetmeden başka bir dosya açıyorsun emin misin?", "Uyari!",
                             JOptionPane.YES_NO_OPTION);
                     if (onay == JOptionPane.YES_OPTION) {
-                        label.setText("Dosya Aciliyor");
-                        JFileChooser filechooser = new JFileChooser("f:");
-                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
-                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
-                        filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Metin Dosyaları (.txt)", "txt"));
-
-                        int temp = filechooser.showDialog(null, "Aç");                   
-                        label.setText("");
-                        filechooser.setDialogTitle("Aç");
-                        if (temp == JFileChooser.APPROVE_OPTION) {
-                            File file = new File(filechooser.getSelectedFile().getAbsolutePath());
-                            try {
-                            	 acilandosya = file.getAbsolutePath();
-                            	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label);   
-                            	 if (file.getName().endsWith(".zedf")) zac(textRegion,label);                                 
-                                l1.add(0,acilandosya);
-                                FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
-                                BufferedWriter receb = new BufferedWriter(rece);
-                                String st = "" , st1 = "";
-                                for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
-                                	st = listele.getModel().getElementAt(i).toString();
-                                	st1 = st1 + "\n" + st;
-                                }
-                                receb.write(st1);
-                                listele.repaint();
-                                receb.close();
-                                receb.flush();
-                                label.setText("Dosya Açıldı");
-                                frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
-                                kayitli = true;
-                            } catch (Exception ex) {
-                                JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
-                                label.setText("Dosya Açılamadı");
-                            }
-                        }
+                    	dac(label,textRegion,listele,l1,rec);
                     }
                 }
                 
@@ -1007,7 +868,54 @@ public class text_editor {
         	}
         	}});
         mnekle.add(dosyadanekle);
-       
+        mntmSave.setToolTipText("Düzenlenen Dosyayı Farklı Şekilde Kaydedin");
+        mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F ,ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK ));
+        mntmSave.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                label.setText("Dosya kaydediliyor");
+                JFileChooser filechooser = new JFileChooser("f:");
+                filechooser.setAcceptAllFileFilterUsed(false);
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+                filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
+                int temp = filechooser.showDialog(null, "Farklı Kaydet");                   
+
+                label.setText("");
+                if (temp == JFileChooser.APPROVE_OPTION) {
+                	File file;
+                    acilandosya = filechooser.getSelectedFile().getAbsolutePath();                                                         
+                    if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
+                    	if (!acilandosya.endsWith(".zedf")) {
+                          	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
+                          } else {
+                          	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                          }
+                    	try {
+                    	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                    	zkaydet(file,textRegion,label,props,listele,rec,l1);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                        label.setText("Dosya kaydedilemedi");
+
+                    }
+                    }
+                    if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                    	if (!acilandosya.endsWith(".edf")) {
+                       	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
+                       } else {
+                       	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                       }
+                    	try {
+                            acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                           kaydet(file,textRegion,label,listele,rec,l1);
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+                            label.setText("Dosya kaydedilemedi");
+
+                        }
+                        }
+                }
+            }
+        });
         mntmSavef.setToolTipText("Düzenlenen Dosyayı Kaydedin");
         mntmSavef.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         mntmSavef.addActionListener(new ActionListener() {
@@ -1016,8 +924,8 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                        	if (!file.getName().endsWith(".zedf")) kaydet(file,textRegion,label);
-                        	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props);
+                        	if (!file.getName().endsWith(".edf")) kaydet(file,textRegion,label,listele,rec,l1);
+                        	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props,listele,rec,l1);
 
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
@@ -1038,38 +946,36 @@ public class text_editor {
                     if (temp == JFileChooser.APPROVE_OPTION) {
                     	File files;
                         acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                        if (!acilandosya.endsWith(".edf") && filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
-                        	 files = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
-                        } else {
-                        	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
-                        }
-                        if (!acilandosya.endsWith(".zedf") && filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
-                       	 files = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
-                       } else {
-                       	 files = new File(filechooser.getSelectedFile().getAbsolutePath());
-                       }
-                        if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
-                        try {
+                        if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
+                        	if (!acilandosya.endsWith(".zedf")) {
+                              	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".zedf");
+                              } else {
+                              	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                              }
+                        	try {
                         	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                        	 kaydet(files,textRegion,label);
-                            frmTextEditor.setTitle("Editör " + surum + " - " + files.getName());
+                        	zkaydet(file,textRegion,label,props,listele,rec,l1);
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                             label.setText("Dosya kaydedilemedi");
 
                         }
-                    }
-                        if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.edf)") {
-                            try {
-                            	acilandosya = filechooser.getSelectedFile().getAbsolutePath();
-                            	 zkaydet(files,textRegion,label,props);
-                                frmTextEditor.setTitle("Editör " + surum + " - " + files.getName());
+                        }
+                        if (filechooser.getFileFilter().getDescription() == "Editör Dosyaları (.edf)") {
+                        	if (!acilandosya.endsWith(".edf")) {
+                           	 file = new File(filechooser.getSelectedFile().getAbsolutePath()+ ".edf");
+                           } else {
+                           	 file = new File(filechooser.getSelectedFile().getAbsolutePath());
+                           }
+                        	try {
+                                acilandosya = filechooser.getSelectedFile().getAbsolutePath();
+                               kaydet(file,textRegion,label,listele,rec,l1);
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                                 label.setText("Dosya kaydedilemedi");
 
                             }
-                        }
+                            }
                     }
                 }
             }
@@ -1103,9 +1009,7 @@ public class text_editor {
                     if (uyari == JOptionPane.YES_OPTION) {
                         System.exit(0);
                     }
-                    if (uyari == JOptionPane.NO_OPTION) {
-
-                    }
+                    
                 }
             }
         });
@@ -1181,7 +1085,7 @@ public class text_editor {
         
 
     }
-public void ac(File file,JTextArea textRegion,JLabel label) throws IOException {
+public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File rec,DefaultListModel<String> l1) throws IOException {
     
          String str = "", str1 = "";
          FileReader fileread = new FileReader(file,StandardCharsets.UTF_8);
@@ -1191,25 +1095,49 @@ public void ac(File file,JTextArea textRegion,JLabel label) throws IOException {
          
          while ((str = bufferrd.readLine()) != null) {
              str1 = str1 + "\n" + str;
-         }                   
+         } 
+         if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+         FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+         BufferedWriter receb = new BufferedWriter(rece);
+         String st = "" , st1 = "";
+         for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+         	st = listele.getModel().getElementAt(i).toString();
+         	st1 = st1 + "\n" + st;
+         }
+         receb.write(st1);
+         listele.repaint();
+         receb.flush();
+         receb.close();    
          textRegion.setText(str1);
          acilandosya = file.getAbsoluteFile().getAbsolutePath();
          label.setText("Dosya Açıldı " + acilandosya);
          frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
          kayitli = true;                   
     
-}    public void kaydet(File file,JTextArea textRegion,JLabel label) throws IOException {
+}    public void kaydet(File file,JTextArea textRegion,JLabel label,JList listele,File rec,DefaultListModel<String> l1) throws IOException {
 	
      FileWriter filewriter = new FileWriter(file, StandardCharsets.UTF_8);
      BufferedWriter bufferwr = new BufferedWriter(filewriter);
      bufferwr.write(textRegion.getText());
      bufferwr.flush();
      bufferwr.close();
+     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+     FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+     BufferedWriter receb = new BufferedWriter(rece);
+     String st = "" , st1 = "";
+     for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+     	st = listele.getModel().getElementAt(i).toString();
+     	st1 = st1 + "\n" + st;
+     }
+     receb.write(st1);
+     listele.repaint();
+     receb.flush();
+     receb.close();  
      label.setText("Dosya kaydedildi " + file.getAbsolutePath());
      frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
      kayitli = true;     
 	
-} public void zkaydet(File file,JTextArea textRegion,JLabel label,Properties props) throws IOException {
+} public void zkaydet(File file,JTextArea textRegion,JLabel label,Properties props,JList listele,File rec,DefaultListModel<String> l1) throws IOException {
 	 
      File tempf = new File("./belge.edf");
      FileWriter filewriter = new FileWriter(tempf, StandardCharsets.UTF_8);
@@ -1237,11 +1165,23 @@ public void ac(File file,JTextArea textRegion,JLabel label) throws IOException {
      zos.close();
      zif.delete();
      tempf.delete();
+     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+     FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+     BufferedWriter receb = new BufferedWriter(rece);
+     String st = "" , st1 = "";
+     for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+     	st = listele.getModel().getElementAt(i).toString();
+     	st1 = st1 + "\n" + st;
+     }
+     receb.write(st1);
+     listele.repaint();
+     receb.flush();
+     receb.close();  
      label.setText("Dosya kaydedildi " + file.getAbsolutePath());
      frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
      kayitli = true;
 	 
-} public void zac(JTextArea textRegion,JLabel label) throws IOException {
+} public void zac(JTextArea textRegion,JLabel label,File rec,JList listele,DefaultListModel<String> l1) throws IOException {
 	ZipFile zf = new ZipFile(acilandosya);
 	
 	  InputStream in = zf.getInputStream(zf.getEntry("bicim.ead"));
@@ -1275,12 +1215,67 @@ public void ac(File file,JTextArea textRegion,JLabel label) throws IOException {
         while ((str = bufferrd.readLine()) != null) {
             str1 = str1 + "\n" + str;
         }      
-        
+        if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+        FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
+        BufferedWriter receb = new BufferedWriter(rece);
+        String st = "" , st1 = "";
+        for (int i = 0; i < listele.getModel().getSize(); i++) {                                	
+        	st = listele.getModel().getElementAt(i).toString();
+        	st1 = st1 + "\n" + st;
+        }
+        receb.write(st1);
+        listele.repaint();
+        receb.flush();
+        receb.close();
         textRegion.setText(str1);
         zf.close();
         label.setText("Dosya Açıldı " + acilandosya);
         frmTextEditor.setTitle("Editör " + surum + " - " + acilandosya);
         kayitli = true;
+} public void dac(JLabel label,JTextArea textRegion,JList listele,DefaultListModel<String> l1,File rec) {
+	label.setText("Dosya Aciliyor");
+    JFileChooser filechooser = new JFileChooser("f:");
+    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
+    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Zenginleştirilmiş Editör Dosyaları (.zedf)", "zedf"));
+    filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Metin Dosyaları (.txt)", "txt"));
+
+    int temp = filechooser.showDialog(null, "Aç");                   
+    label.setText("");
+    if (temp == JFileChooser.APPROVE_OPTION) {
+        File file = new File(filechooser.getSelectedFile().getAbsolutePath());
+        acilandosya = file.getAbsolutePath();          
+        if (filechooser.getFileFilter().getDescription() != "Zenginleştirilmiş Editör Dosyaları (.zedf)") {
+        try {
+        	
+			ac(file,textRegion,label,listele,rec,l1);
+			l1.add(0, acilandosya);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(frmTextEditor, e1.getMessage());
+            label.setText("Dosya Açılamadı");
+		}	      
+        } if (filechooser.getFileFilter().getDescription() == "Zenginleştirilmiş Editör Dosyaları (.zedf)") {                    	
+        try {
+        	acilandosya = file.getAbsoluteFile().getAbsolutePath();
+        	
+        	zac(textRegion,label,rec,listele,l1);
+        	l1.add(0, acilandosya);
+                //l1.addElement(acilandosya);
+                label.setText("Dosya Açıldı " + acilandosya);
+                frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+                kayitli = true;
+    		
+        	                       		
+        		 
+        	                         	
+        	
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
+            label.setText("Dosya Açılamadı");
+        }
+        }
+    }
 }
 }
 //
