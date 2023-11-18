@@ -924,7 +924,7 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                        	if (!file.getName().endsWith(".edf")) kaydet(file,textRegion,label,listele,rec,l1);
+                        	if (!file.getName().endsWith(".zedf")) kaydet(file,textRegion,label,listele,rec,l1);
                         	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props,listele,rec,l1);
 
                         } catch (Exception ex) {
