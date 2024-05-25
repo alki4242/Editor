@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 
 public class text_editor {
-    String surum = "V1.2.8";
+    String surum = "V1.2.9";
     String acilandosya = "s";
     Boolean kayitli = true;
     private JFrame frmTextEditor;
@@ -74,6 +74,7 @@ public class text_editor {
             try {
                 FileReader reader = new FileReader(f, StandardCharsets.UTF_8);
                 props.load(reader);
+                
             } catch (Exception e) {
             		JOptionPane.showMessageDialog(frmTextEditor, "Kritik Dosya Hatası!\n" + e);
             }
@@ -98,6 +99,7 @@ public class text_editor {
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
+        	JOptionPane.showMessageDialog(frmTextEditor, "Sistem UI Tasarımı kaynaklı hata!\n" + e);
         }
         String bfont = props.getProperty("Font");
         String bbmr = props.getProperty("metinr");
@@ -454,7 +456,6 @@ public class text_editor {
                 	  acilandosya = file.getAbsolutePath();
                 	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
                 	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);   
-                	 l1.add(0,acilandosya);
                   } catch (Exception ex) {
                       JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                       label.setText("Dosya Açılamadı");
@@ -467,7 +468,6 @@ public class text_editor {
                     	  acilandosya = file.getAbsolutePath();
                      	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);  
                      	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);  
-                     	l1.add(0,acilandosya);
                       } catch (Exception ex) {
                           JOptionPane.showMessageDialog(frmTextEditor, ex.getMessage());
                           label.setText("Dosya Açılamadı");
@@ -540,6 +540,7 @@ public class text_editor {
         		try {
         		
         		if(l2.contains(acilandosya)) l2.removeElement(acilandosya);
+        		l2.add(0,acilandosya); 
         		 FileWriter rece = new FileWriter(favs, StandardCharsets.UTF_8);
                  BufferedWriter receb = new BufferedWriter(rece);
                  String st = "" , st1 = "";
@@ -547,7 +548,7 @@ public class text_editor {
                  	st = fav.getModel().getElementAt(i).toString();
                  	st1 = st1 + "\n" + st;
                  }
-                 l2.add(0,acilandosya); 
+                 
                  receb.write(st1);
                  fav.repaint();
                  receb.flush();
@@ -621,8 +622,7 @@ public class text_editor {
                 		   
                 		   acilandosya = file.getAbsolutePath();
                 		   if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
-                      	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);         
-                      	l1.add(0, file.getAbsolutePath());
+                      	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);                               
                         //l1.addElement(acilandosya);
                         /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                         BufferedWriter receb = new BufferedWriter(rece);
@@ -643,8 +643,7 @@ public class text_editor {
        	                        label.setText("Dosya Aciliyor");
        	                     
        	                     if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
-       	                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);         
-       	                	l1.add(0, file.getAbsolutePath());
+       	                	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);               
                              //l1.addElement(acilandosya);
                             /* FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                              BufferedWriter receb = new BufferedWriter(rece);
@@ -681,11 +680,9 @@ public class text_editor {
              if (uyari == JOptionPane.YES_OPTION) {
             	 File file = new File(fav.getSelectedValue().toString());
                  try {
-                	 acilandosya = file.getAbsolutePath();
-                	 
+                	 acilandosya = file.getAbsolutePath();               	 
                 	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
                 	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);           
-                	 l1.add(0, acilandosya);
                      //l1.addElement(acilandosya);
                      /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                      BufferedWriter receb = new BufferedWriter(rece);
@@ -719,7 +716,6 @@ public class text_editor {
             	
             	 if (!file.getName().endsWith(".zedf")) ac(file,textRegion,label,listele,rec,l1);   
             	 if (file.getName().endsWith(".zedf")) zac(textRegion,label,rec,listele,l1);  
-            	 l1.add(0, acilandosya);
                 //l1.addElement(acilandosya);
                 /*FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
                 BufferedWriter receb = new BufferedWriter(rece);
@@ -924,7 +920,7 @@ public class text_editor {
                 if (acilandosya != "s") {
                     if (file.exists()) {
                         try {
-                        	if (!file.getName().endsWith(".edf")) kaydet(file,textRegion,label,listele,rec,l1);
+                        	if (!file.getName().endsWith(".zedf")) kaydet(file,textRegion,label,listele,rec,l1);
                         	if (file.getName().endsWith(".zedf")) zkaydet(file,textRegion,label,props,listele,rec,l1);
 
                         } catch (Exception ex) {
@@ -1096,7 +1092,10 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
          while ((str = bufferrd.readLine()) != null) {
              str1 = str1 + "\n" + str;
          } 
-         if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+         if(l1.contains(acilandosya)) l1.removeElement(acilandosya);
+         l1.add(0, acilandosya);
+         l1.removeElement("");
+         listele.repaint();
          FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
          BufferedWriter receb = new BufferedWriter(rece);
          String st = "" , st1 = "";
@@ -1121,7 +1120,10 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
      bufferwr.write(textRegion.getText());
      bufferwr.flush();
      bufferwr.close();
-     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); 
+     l1.add(0, acilandosya);
+     l1.removeElement("");
+     listele.repaint();
      FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
      BufferedWriter receb = new BufferedWriter(rece);
      String st = "" , st1 = "";
@@ -1165,7 +1167,10 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
      zos.close();
      zif.delete();
      tempf.delete();
-     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+     if(l1.contains(acilandosya)) l1.removeElement(acilandosya); 
+     l1.add(0, acilandosya);
+     l1.removeElement("");
+     listele.repaint();
      FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
      BufferedWriter receb = new BufferedWriter(rece);
      String st = "" , st1 = "";
@@ -1215,7 +1220,10 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
         while ((str = bufferrd.readLine()) != null) {
             str1 = str1 + "\n" + str;
         }      
-        if(l1.contains(acilandosya)) l1.removeElement(acilandosya); listele.repaint();
+        if(l1.contains(acilandosya)) l1.removeElement(acilandosya);
+        l1.add(0, acilandosya);
+        l1.removeElement("");
+        listele.repaint();
         FileWriter rece = new FileWriter(rec, StandardCharsets.UTF_8);
         BufferedWriter receb = new BufferedWriter(rece);
         String st = "" , st1 = "";
@@ -1232,7 +1240,7 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
         label.setText("Dosya Açıldı " + acilandosya);
         frmTextEditor.setTitle("Editör " + surum + " - " + acilandosya);
         kayitli = true;
-} public void dac(JLabel label,JTextArea textRegion,JList listele,DefaultListModel<String> l1,File rec) {
+}public void dac(JLabel label,JTextArea textRegion,JList listele,DefaultListModel<String> l1,File rec) {
 	label.setText("Dosya Aciliyor");
     JFileChooser filechooser = new JFileChooser("f:");
     filechooser.addChoosableFileFilter(new FileNameExtensionFilter("Editör Dosyaları (.edf)", "edf"));
@@ -1249,6 +1257,10 @@ public void ac(File file,JTextArea textRegion,JLabel label,JList listele,File re
         	
 			ac(file,textRegion,label,listele,rec,l1);
 			l1.add(0, acilandosya);
+			l1.removeElement("");
+			label.setText("Dosya Açıldı " + acilandosya);
+            frmTextEditor.setTitle("Editör " + surum + " - " + file.getName());
+            kayitli = true;
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			JOptionPane.showMessageDialog(frmTextEditor, e1.getMessage());
